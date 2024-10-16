@@ -1,0 +1,39 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "rootDir": ".",
+        "paths": {
+            "src/*": [
+                "./src/*"
+            ]
+        },
+        "lib": [
+            "ES2021"
+        ],
+        "outDir": "./dist/browser",
+        "sourceMap": true,
+        "target": "ES2015",
+        "module": "ES2015",
+        "moduleResolution": "node",
+        "resolveJsonModule": true,
+        "experimentalDecorators": true,
+        "esModuleInterop": true,
+        "declaration": false,
+        "strict": true,
+        "allowJs": true,
+        "skipLibCheck": true
+    },
+    "include": [
+        "src/",
+        "index.ts",
+        "**/*.tgz",
+        "**/*.patch"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/__tests__/*",
+        "dist",
+        "spec/",
+        "mocks/",
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Jasmine Current File",
+            "program": "${workspaceFolder}/node_modules/.bin/ts-node",
+            "args": [
+                "-r",
+                "tsconfig-paths/register",
+                "node_modules/jasmine/bin/jasmine",
+                "--config=debug/jasmine.ts",
+                "${file}"
+            ],
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        }
+    ]
+}

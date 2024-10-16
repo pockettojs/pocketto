@@ -1,0 +1,20 @@
+{
+    "eslint.format.enable": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "explicit"
+    },
+    "eslint.validate": [
+        "javascript",
+        "typescript"
+    ],
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.formatOnSave": true,
+    "eslint.options": {
+        "overrideConfigFile": ".eslintrc.json"
+    },
+    "cSpell.words": [
+        "pocketto",
+    ],
+}
