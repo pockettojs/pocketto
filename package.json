@@ -1,7 +1,7 @@
 {
     "name": "pocketto",
     "version": "0.1.0",
-    "description": "Pouch DB model library",
+    "description": "Pocketto is a PouchDB wrapper that provides a simple and easy-to-use API for interacting with PouchDB and CouchDB.",
     "main": "dist/node/src/index.js",
     "types": "dist/src/index.d.ts",
     "browser": "dist/browser/src/index.js",
