@@ -11,7 +11,7 @@ export function emitChangeEvent(_id: string, doc: BaseModel) {
     docEvent.emit('docChange', _id, doc);
 }
 
-export function setDocChangeEventListener(listener: (id: string, doc: BaseModel) => void | Promise<void>) {
+export function onDocChange(listener: (id: string, doc: BaseModel) => void | Promise<void>) {
     return docEvent.on('docChange', listener);
 }
 

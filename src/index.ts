@@ -1,3 +1,4 @@
+import { onDocChange } from 'src/real-time/RealTimeModel';
 import { setEnvironment } from '.';
 import { setRealtime } from '.';
 import { getMainDatabaseName, getPerformanceMode, setMainDatabaseName, setPerformanceMode } from './multi-database/MutliDatabaseConfig';
@@ -16,6 +17,7 @@ export * from 'src/helpers/Persistor';
 export const Pocketto = {
     setRealtime: setRealtime,
     setEnvironment: setEnvironment,
+    onDocChange: onDocChange,
     setPerformanceMode: setPerformanceMode,
     getPerformanceMode: getPerformanceMode,
     setMainDatabaseName: setMainDatabaseName,
