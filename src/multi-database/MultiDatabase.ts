@@ -14,11 +14,6 @@ export default class MultipleDatabase {
     // Store daily data like Transaction, Order, etc.
     static databases: MultiDatabaseConfig[] = [];
 
-    static loadDatabases() {
-        const modelClass = require('../Model').BaseModel as typeof BaseModel;
-        modelClass.dbName = this.dbName;
-    }
-
     static async createDatabase(
         period: string,
         remoteDatabaseCreation?: (periodDbConfig: PouchDBConfig) => PouchDBConfig | Promise<PouchDBConfig | undefined>
