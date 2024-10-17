@@ -1,5 +1,5 @@
 import { DatabaseManager, BaseModel, Model, BelongsTo } from 'src/index';
-import { PocketModel } from 'src/model/ModelDecorator';
+import { Pocketto } from 'src/model/ModelDecorator';
 import { HasMany } from 'src/relationships/RelationshipDecorator';
 
 const dbName = 'relationship-decorator';
@@ -10,7 +10,7 @@ describe('Relationship Decorator', () => {
     });
 
     it('should able to query post', async () => {
-        @PocketModel
+        @Pocketto
         class DecoratorPost extends Model {
             static dbName = dbName;
             static softDelete = false;
@@ -20,7 +20,7 @@ describe('Relationship Decorator', () => {
             @BelongsTo('DecoratorUser', 'userId', 'id') user?: DecoratorUser;
         }
 
-        @PocketModel
+        @Pocketto
         class DecoratorUser extends Model {
             static dbName = dbName;
             static softDelete = false;

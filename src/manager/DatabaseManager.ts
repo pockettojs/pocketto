@@ -3,12 +3,12 @@ import { isRealTime, setRealtime } from 'src/real-time/RealTimeModel';
 
 let PouchDB: any;
 
-export function setEnvironment(environment: 'browser' | 'node') {
+export function setEnvironment(environment: 'browser' | 'node' | 'react-native') {
     const PouchDBFind = require('pouchdb-find');
     if (environment == 'browser') {
         PouchDB = require('pouchdb-browser').default;
         PouchDB.plugin(PouchDBFind.default);
-    } else {
+    } else if (environment == 'node' || environment == 'react-native') {
         PouchDB = require('pouchdb');
         PouchDB.plugin(PouchDBFind);
     }

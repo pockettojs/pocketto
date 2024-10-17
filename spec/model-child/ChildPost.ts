@@ -1,10 +1,10 @@
 import { Model } from 'src/model/Model';
 import { BelongsTo } from 'src/index';
-import { PocketModel } from 'src/model/ModelDecorator';
+import { Pocketto } from 'src/model/ModelDecorator';
 import { ChildUser } from './ChildUser';
 
 const dbName = 'model-child';
-@PocketModel
+@Pocketto
 export class ChildPost extends Model {
     static dbName = dbName;
 

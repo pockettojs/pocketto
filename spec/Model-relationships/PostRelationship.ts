@@ -1,10 +1,10 @@
 import { BelongsTo, HasMany, Model } from 'src/index';
-import { PocketModel } from 'src/model/ModelDecorator';
+import { Pocketto } from 'src/model/ModelDecorator';
 import { Attachment } from './Attachment';
 import { UserRelationship } from './UserRelationship';
 
 const dbName = 'model-relationships';
-@PocketModel
+@Pocketto
 export class PostRelationship extends Model {
     static dbName = dbName;
 
