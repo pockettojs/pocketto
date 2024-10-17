@@ -14,7 +14,7 @@ export * from 'src/relationships/RelationshipDecorator';
 export * from 'src/model/ModelDecorator';
 export * from 'src/helpers/Persistor';
 
-export const Pocketto = {
+export const p = {
     setRealtime: setRealtime,
     setEnvironment: setEnvironment,
     onDocChange: onDocChange,
