@@ -591,17 +591,19 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         this.queries.selector.$and.push({
             _id: { $regex: `^${this.model.cName}`, },
         });
-        if (this.softDelete === 'none') {
-            this.where('deletedAt', '=', undefined as any);
-            this.queries.selector.$and.push({
-                deletedAt: { $exists: false, },
-            });
-        } else if (this.softDelete === 'only') {
-            this.where('deletedAt', '!=', undefined as any);
-            this.queries.selector.$and.push({
-                deletedAt: { $exists: true, },
-            });
-        }
+
+        // TODO: Due to PouchDB cannot accept this param, comment it first. Later need to fix
+        // if (this.softDelete === 'none') {
+        //     this.where('deletedAt', '=', undefined as any);
+        //     this.queries.selector.$and.push({
+        //         deletedAt: { $exists: false, },
+        //     });
+        // } else if (this.softDelete === 'only') {
+        //     this.where('deletedAt', '!=', undefined as any);
+        //     this.queries.selector.$and.push({
+        //         deletedAt: { $exists: true, },
+        //     });
+        // }
 
         if (this.isMultiDatabase) {
             const multiQb = new MultiQueryBuilder(this.model, this.relationships);
