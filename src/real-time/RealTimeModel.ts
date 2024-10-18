@@ -1,38 +1,24 @@
 import { DatabaseManager } from 'src/manager/DatabaseManager';
 import { BaseModel, Model } from 'src/model/Model';
 import EventEmitter from 'events';
-import { getModelClass, getModelName } from '..';
 
 export let isRealTime = false;
 const dbChangeListenerMap: { [key: string]: PouchDB.Core.Changes<any> | undefined } = {};
 
 export const docEvent = new EventEmitter();
-export function emitChangeEvent(_id: string, doc: BaseModel) {
-    docEvent.emit('docChange', _id, doc);
+export function emitChangeEvent(_id: string) {
+    docEvent.emit('docChange', _id);
 }
 
-export function onDocChange(listener: (id: string, doc: BaseModel) => void | Promise<void>) {
+export function onDocChange(listener: (id: string) => void | Promise<void>) {
     return docEvent.on('docChange', listener);
 }
 
 export function setRealtime(realTime: boolean) {
     isRealTime = realTime;
-    const onRealTimeChange = async (change: PouchDB.Core.ChangesResponseChange<any>, name: string) => {
+    const onRealTimeChange = async (change: PouchDB.Core.ChangesResponseChange<any>) => {
         const _id = change.doc?._id || change.id;
-
-        let doc = change.doc;
-        if (!doc) {
-            doc = await DatabaseManager.get(name)?.get(_id);
-            doc._rev = change.changes[0].rev;
-        }
-        doc.id = _id;
-        delete doc._id;
-        const modelName = getModelName(_id.split('.')[0]);
-        if (!modelName) return;
-        const ExpectedModelClass = getModelClass(modelName);
-        if (!ExpectedModelClass) return;
-        doc = new ExpectedModelClass(doc);
-        emitChangeEvent(doc.id, doc as BaseModel);
+        emitChangeEvent(_id);
     };
 
 
@@ -44,7 +30,7 @@ export function setRealtime(realTime: boolean) {
                 since: 'now',
                 include_docs: true,
                 live: true,
-            }).on('change', (change) => onRealTimeChange(change, db.name));
+            }).on('change', onRealTimeChange);
         });
     } else {
         Object.values(DatabaseManager.databases).forEach((db) => {
