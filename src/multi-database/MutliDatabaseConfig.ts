@@ -1,13 +1,13 @@
 import MultipleDatabase from './MultiDatabase';
 
-let performanceMode = false;
+let timeSeriesMode = false;
 
-export function setPerformanceMode(isPerformanceMode: boolean) {
-    performanceMode = isPerformanceMode;
+export function setTimeSeriesMode(isTimeSeriesMode: boolean) {
+    timeSeriesMode = isTimeSeriesMode;
 }
 
-export function getPerformanceMode() {
-    return performanceMode;
+export function getTimeSeriesMode() {
+    return timeSeriesMode;
 }
 
 export function setMainDatabaseName(dbName: string) {

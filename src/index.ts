@@ -1,7 +1,7 @@
 import { onDocChange } from 'src/real-time/RealTimeModel';
 import { setEnvironment } from '.';
 import { setRealtime } from '.';
-import { getMainDatabaseName, getPerformanceMode, setMainDatabaseName, setPerformanceMode } from './multi-database/MutliDatabaseConfig';
+import { getMainDatabaseName, getTimeSeriesMode, setMainDatabaseName, setTimeSeriesMode } from './multi-database/MutliDatabaseConfig';
 
 export * from 'src/manager/DatabaseManager';
 export * from 'src/manager/RepoManager';
@@ -18,8 +18,8 @@ export const p = {
     setRealtime: setRealtime,
     setEnvironment: setEnvironment,
     onDocChange: onDocChange,
-    setPerformanceMode: setPerformanceMode,
-    getPerformanceMode: getPerformanceMode,
+    setTimeSeriesMode: setTimeSeriesMode,
+    getTimeSeriesMode: getTimeSeriesMode,
     setMainDatabaseName: setMainDatabaseName,
     getMainDatabaseName: getMainDatabaseName,
 };
