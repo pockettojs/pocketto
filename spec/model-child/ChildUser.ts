@@ -1,11 +1,11 @@
 import { Model } from 'src/model/Model';
 import { HasMany, HasOne } from 'src/index';
-import { Pocketto } from 'src/model/ModelDecorator';
+import { Relational } from 'src/model/ModelDecorator';
 import { ChildPost } from './ChildPost';
 import { ChildIdentityCard } from './ChildIdentityCard';
 
 const dbName = 'model-child';
-@Pocketto
+@Relational
 export class ChildUser extends Model {
     static dbName = dbName;
     static collectionName = 'Users';

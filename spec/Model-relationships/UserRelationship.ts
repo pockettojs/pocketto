@@ -1,9 +1,9 @@
 import { HasMany, Model } from 'src/index';
-import { Pocketto } from 'src/model/ModelDecorator';
+import { Relational } from 'src/model/ModelDecorator';
 import { PostRelationship } from './PostRelationship';
 
 const dbName = 'model-relationships';
-@Pocketto
+@Relational
 export class UserRelationship extends Model {
     static dbName = dbName;
 

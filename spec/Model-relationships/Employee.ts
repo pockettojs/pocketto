@@ -1,9 +1,9 @@
 import { BelongsTo, Model } from 'src/index';
-import { Pocketto } from 'src/model/ModelDecorator';
+import { Relational } from 'src/model/ModelDecorator';
 import { UserRelationship } from './UserRelationship';
 
 const dbName = 'model-relationships';
-@Pocketto
+@Relational
 export class Employee extends Model {
     static dbName = dbName;
 
