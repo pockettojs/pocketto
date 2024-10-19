@@ -1,6 +1,6 @@
 import { ValidDotNotationArray } from 'src/definitions/DotNotation';
 import { BaseModel, Operator, OperatorValue, QueryableModel, QueryBuilder } from '..';
-import { getMainDatabaseName } from './MutliDatabaseConfig';
+import { getMainDatabaseName, ShardingMode } from './MultiDatabaseConfig';
 import { ModelKey, NewModelType } from 'src/definitions/Model';
 import MultipleDatabase from './MultiDatabase';
 import moment from 'moment';
@@ -16,7 +16,7 @@ export class MultiQueryBuilder<T extends BaseModel, K extends string[] = []> {
     constructor(model: T, relationships?: ValidDotNotationArray<T, K>) {
         this.model = model;
         const mainDbName = getMainDatabaseName();
-        if (!model.multiDatabase) throw new Error(`Model ${model.cName} is not multi database enabled`);
+        if (model.sMode !== ShardingMode.TimeSeries) throw new Error(`Model ${model.cName} is not enabled for database sharding`);
         this.queryBuilder = QueryBuilder.query(model, relationships, mainDbName);
     }
 

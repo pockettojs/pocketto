@@ -18,7 +18,7 @@ import { DatabaseManager, convertIdFieldsToDocIds, convertIdFieldsToModelIds, ge
 import { getModelClass } from './ModelDecorator';
 import { MultiQueryBuilder } from 'src/multi-database/MultiQueryBuilder';
 import MultipleDatabase from 'src/multi-database/MultiDatabase';
-import { getMainDatabaseName } from 'src/multi-database/MutliDatabaseConfig';
+import { getMainDatabaseName, ShardingMode } from 'src/multi-database/MultiDatabaseConfig';
 
 export function setDefaultDbName(dbName: string): string {
     BaseModel.dbName = dbName;
@@ -34,13 +34,14 @@ export function setDefaultNeedSoftDelete(softDelete: boolean): boolean {
     return BaseModel.softDelete;
 }
 
+
 export class BaseModel {
     static collectionName?: string;
     static dbName: string = 'default';
     static readonlyFields: string[] = [];
     static timestamp?: boolean = true;
     static softDelete: boolean = true;
-    static multiDatabase: boolean = false;
+    static shardingMode: ShardingMode = ShardingMode.None;
 
     getClass(): typeof BaseModel {
         return this.constructor as typeof BaseModel;
@@ -52,8 +53,8 @@ export class BaseModel {
     public get dName() {
         return this.getClass().dbName;
     }
-    public get multiDatabase() {
-        return this.getClass().multiDatabase;
+    public get sMode() {
+        return this.getClass().shardingMode;
     }
     public get needTimestamp() {
         let timestamp = this.getClass().timestamp;
@@ -247,7 +248,7 @@ export class BaseModel {
      */
     static async find<T extends BaseModel>(this: ModelStatic<T>, primaryKey?: string | string): Promise<T | undefined> {
         if (!primaryKey) return undefined;
-        if ((new this).multiDatabase) {
+        if ((new this).sMode === ShardingMode.TimeSeries) {
             const result = await Promise.all(MultipleDatabase.databases.map(async (db) => {
                 const item = await DatabaseManager
                     .get(db.localDatabaseName)
@@ -434,7 +435,7 @@ export class BaseModel {
 
         let hasDocumentInDb;
         if (this.id) {
-            if (this.multiDatabase) {
+            if (this.sMode === ShardingMode.TimeSeries) {
                 hasDocumentInDb = await MultiQueryBuilder.query(new (this.getClass())).find(this.id);
             } else {
                 hasDocumentInDb = await this.getClass().query().find(this.id);
@@ -452,7 +453,7 @@ export class BaseModel {
             if (this.getClass().beforeCreate) {
                 await this.getClass().beforeCreate(this);
             }
-            if (this.multiDatabase) {
+            if (this.sMode === ShardingMode.TimeSeries) {
                 const currentPeriod = this._meta._period || moment().format('YYYY-MM');
                 updatedResult = await MultiQueryBuilder.query(new (this.getClass())).create(newAttributes as NewModelType<this>, currentPeriod);
                 this._meta._period = currentPeriod;
@@ -476,7 +477,7 @@ export class BaseModel {
             if (this.getClass().beforeUpdate) {
                 await this.getClass().beforeUpdate(this);
             }
-            if (this.multiDatabase) {
+            if (this.sMode === ShardingMode.TimeSeries) {
                 updatedResult = await MultiQueryBuilder.query(new (this.getClass())).update(newAttributes, this._meta._period);
             } else {
                 updatedResult = await this.getClass().repo().update(newAttributes);
@@ -513,7 +514,7 @@ export class BaseModel {
             this.deletedAt = moment().format();
             await this.save();
         } else {
-            if (this.multiDatabase) {
+            if (this.sMode === ShardingMode.TimeSeries) {
                 const periodDbName = `${getMainDatabaseName()}-${this._meta._period}`;
                 await QueryBuilder.query(this, undefined, periodDbName).setPeriod(this._meta._period).deleteOne(this.id);
             } else {

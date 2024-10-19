@@ -10,6 +10,7 @@ import { BaseModel } from 'src/model/Model';
 import { MultiQueryBuilder } from 'src/multi-database/MultiQueryBuilder';
 import { convertIdFieldsToDocIds, getForeignIdFields } from 'src/relationships/RelationshipDecorator';
 import { ApiRepo } from 'src/repo/ApiRepo';
+import { ShardingMode } from 'src/multi-database/MultiDatabaseConfig';
 
 const operators = ['=', '>', '>=', '<', '<=', '!=', 'in', 'not in', 'between', 'like',] as const;
 export type Operator = typeof operators[number];
@@ -128,7 +129,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         }
         this.dbName = dbName;
         this.model = model;
-        this.isMultiDatabase = this.model.multiDatabase;
+        this.isMultiDatabase = this.model.sMode !== ShardingMode.None;
         this.relationships = (relationships || []) as ValidDotNotationArray<T, K>;
         this.queries = { selector: { $and: [], }, };
         this.isOne = isOne;

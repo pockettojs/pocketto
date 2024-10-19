@@ -1,11 +1,11 @@
 import { DatabaseManager } from 'src/manager/DatabaseManager';
 import { Model } from 'src/model/Model';
-import { setMainDatabaseName } from 'src/multi-database/MutliDatabaseConfig';
+import { setMainDatabaseName, ShardingMode } from 'src/multi-database/MultiDatabaseConfig';
 
 describe('Model Multi Database', () => {
     class Invoice extends Model {
         static dbName = 'model-multi-database';
-        static multiDatabase = true;
+        static shardingMode = ShardingMode.TimeSeries;
         static softDelete = false;
 
         total!: number;

@@ -1,5 +1,5 @@
 // reference from: https://medium.com/dailyjs/typescript-create-a-condition-based-subset-types-9d902cea5b8c
-export type ReservedFieldForSelect = 'cName' | 'dName' | 'multiDatabase' | 'needTimestamp' | 'needSoftDelete' | 'relationships' | '_meta' | '_tempPeriod' | 'formatResponse' | '_id' | '_rev' | 'aName' | 'aResource' | 'aAuto' | 'docId' | 'modelId';
+export type ReservedFieldForSelect = 'cName' | 'dName' | 'sMode' | 'needTimestamp' | 'needSoftDelete' | 'relationships' | '_meta' | '_tempPeriod' | 'formatResponse' | '_id' | '_rev' | 'aName' | 'aResource' | 'aAuto' | 'docId' | 'modelId';
 export type FunctionlessModel<T> = Omit<Omit<T, {
     [Key in keyof T]: T[Key] extends Function ? Key : never;
 }[keyof T]>, ReservedFieldForSelect>;
