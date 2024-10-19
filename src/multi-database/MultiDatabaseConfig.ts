@@ -1,13 +1,8 @@
 import MultipleDatabase from './MultiDatabase';
 
-let timeSeriesMode = false;
-
-export function setTimeSeriesMode(isTimeSeriesMode: boolean) {
-    timeSeriesMode = isTimeSeriesMode;
-}
-
-export function getTimeSeriesMode() {
-    return timeSeriesMode;
+export enum ShardingMode {
+    TimeSeries = 'time-series',
+    None = 'none',
 }
 
 export function setMainDatabaseName(dbName: string) {
