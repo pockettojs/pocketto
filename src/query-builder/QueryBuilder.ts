@@ -1,4 +1,3 @@
-import uuid from 'short-uuid';
 import { ValidDotNotationArray } from 'src/definitions/DotNotation';
 import { EncryptedDocument } from 'src/definitions/EncryptedDocument';
 import { ModelKey, ModelType, ModelValue, NewModelType } from 'src/definitions/Model';
@@ -6,6 +5,7 @@ import { RelationshipType } from 'src/definitions/RelationshipType';
 import { decrypt } from 'src/encryption/encryption';
 import { APIResourceInfo } from 'src/manager/ApiHostManager';
 import { DatabaseCustomConfig, DatabaseManager } from 'src/manager/DatabaseManager';
+import { getNewId } from 'src/id/Id';
 import { BaseModel } from 'src/model/Model';
 import { MultiQueryBuilder } from 'src/multi-database/MultiQueryBuilder';
 import { convertIdFieldsToDocIds, getForeignIdFields } from 'src/relationships/RelationshipDecorator';
@@ -100,9 +100,6 @@ function queryableValueToValue<T extends BaseModel, Key extends ModelKey<T>>(fie
 }
 
 
-export function getNewId(): string {
-    return String(uuid.generate());
-}
 
 export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
     protected queries: PouchDB.Find.FindRequest<T> & { selector: { $and: PouchDB.Find.Selector[] } };
@@ -684,7 +681,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
 
     async create(attributes: NewModelType<T>, fallbackCreate = false): Promise<PouchDB.Core.Response> {
         if (!attributes.id) {
-            attributes.id = getNewId();
+            attributes.id = await getNewId(this.model.getClass());
         }
         if (!attributes.id.includes(this.model.cName)) {
             attributes.id = `${this.model.cName}.${attributes.id}`;
