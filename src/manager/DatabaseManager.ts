@@ -8,9 +8,17 @@ export function setEnvironment(environment: 'browser' | 'node' | 'react-native')
     if (environment == 'browser') {
         PouchDB = require('pouchdb-browser').default;
         PouchDB.plugin(PouchDBFind.default);
-    } else if (environment == 'node' || environment == 'react-native') {
+    } else if (environment == 'node') {
         PouchDB = require('pouchdb');
         PouchDB.plugin(PouchDBFind);
+    } else if (environment == 'react-native') {
+        PouchDB = require('pouchdb');
+        PouchDB.plugin(PouchDBFind);
+        // require('react-native-get-random-values');
+        // const SQLiteAdapterFactory = require('pouchdb-adapter-react-native-sqlite');
+        // const SQLite = require('react-native-sqlite-2');
+        // const SQLiteAdapter = SQLiteAdapterFactory(SQLite);
+        // PouchDB.plugin(SQLiteAdapter);
     }
 }
 
