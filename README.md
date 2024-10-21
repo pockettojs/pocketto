@@ -1,5 +1,19 @@
 # Pocketto
 
+<div align="left">
+  <p align="left">
+    <a href="https://www.npmjs.com/package/pocketto">
+      <img src="https://img.shields.io/npm/v/pocketto.svg?style=flat-square" alt="NPM Version" />
+    </a>
+    <a href="https://www.npmjs.com/package/pocketto">
+      <img src="https://img.shields.io/npm/dm/pocketto.svg?style=flat-square" alt="NPM Downloads" />
+    </a>
+    <a href="https://github.com/pockettojs/pocketto/stargazers">
+      <img src="https://img.shields.io/github/stars/pockettojs/pocketto.svg?style=flat-square" alt="GitHub Stars" />
+    </a>
+  </p>
+</div>
+
 Pocketto (ポケット) is a real time CRUD that can run in any javascript environment. Including:
 
 - Server Side Framework: [Node.js](https://nodejs.org/), [Deno](https://deno.land/), [Bun](https://bun.sh/).
