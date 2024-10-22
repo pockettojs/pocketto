@@ -14,15 +14,23 @@
   </p>
 </div>
 
-Pocketto (ポケット) is a real time CRUD that can run in any javascript environment. Including:
+> **Communicate between different platforms. In real time.**
+
+Pocketto (ポケット) is a real time CRUD tools that can run in any javascript environment. Including:
 
 - Server Side Framework: [Node.js](https://nodejs.org/), [Deno](https://deno.land/), [Bun](https://bun.sh/).
-- Browser Side Framework: [React](https://reactjs.org/), [Vue](https://vuejs.org/), [Angular](https://angular.io/).
-- Mobile App Framework: [React Native](https://reactnative.dev/), [NativeScript](https://nativescript.org/).
+- Browser Side Framework: [React](https://reactjs.org/), [Vue](https://vuejs.org/).
+- Mobile App Framework: [React Native](https://reactnative.dev/).
 
 ## Getting Started
 
 Please follow the documentation at [pocketto.dev](https://pocketto.dev/)!
+
+## Example Projects
+
+[React](https://github.com/pockettojs/pocketto-react-example)<br />
+[React Native](https://github.com/pockettojs/PockettoReactNativeExample)<br />
+[Vue](https://github.com/pockettojs/pocketto-vue-example)<br />
 
 ## License
 
