@@ -62,7 +62,8 @@ describe('Model Encrypt', () => {
     beforeEach(async () => {
         await DatabaseManager.connect(dbName, {
             dbName,
-            password: 'hu9fewu9bnf49n0*&(HG(',
+            encryption: true,
+            encryptionPassword: 'hu9fewu9bnf49n0*&(HG(',
             adapter: 'memory',
             silentConnect: true,
         });

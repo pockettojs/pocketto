@@ -35,7 +35,13 @@ export type PouchDBConfig = {
      * Password to encrypt the database in your browser.
      * If not set, the database will not be encrypted.
      */
-    password?: string;
+    encryption?: boolean;
+
+    /**
+     * Encryption password to encrypt the database in your browser.
+     * If not set, default using `auth` password.
+     */
+    encryptionPassword?: string;
 
     /**
      * Adapter to use. Default is 'idb' (IndexedDB) for the browser and 'leveldb' for NodeJS.
@@ -104,9 +110,9 @@ export class DatabaseManager {
                         await (pouchDb as PouchDB.Database & DatabaseCustomConfig).login(config.auth.username, config.auth.password);
                     }
                 }
-                if (config.password) {
+                if (config.encryption) {
                     pouchDb.hasPassword = true;
-                    await setEncryptionPassword(config.password, config.dbName || 'default');
+                    await setEncryptionPassword(config.encryptionPassword || config.auth?.password || '', config.dbName || 'default');
                     PouchDB.plugin(require('transform-pouch'));
                     const newTransformer = { ...transformer, dbName: config.dbName || 'default', };
                     await pouchDb.transform(newTransformer);

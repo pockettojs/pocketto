@@ -15,7 +15,13 @@ export type SinglePocketConfig = {
      * Password to encrypt the database in your browser.
      * If not set, the database will not be encrypted.
      */
-    password?: string;
+    encryption?: boolean;
+
+    /**
+     * Encryption password to encrypt the database in your browser.
+     * If not set, default using `auth` password.
+     */
+    encryptionPassword?: string;
 
     /**
      * Adapter to use. Default is 'idb' (IndexedDB) for the browser and 'leveldb' for NodeJS.

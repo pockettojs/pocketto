@@ -51,7 +51,8 @@ export async function setupConfig<Config extends SinglePocketConfig | MultiPocke
             const dbName = singleConfig.dbName || 'default';
             await DatabaseManager.connect(singleConfig.url, {
                 dbName,
-                password: singleConfig.password,
+                encryption: singleConfig.encryption,
+                encryptionPassword: singleConfig.encryptionPassword,
                 adapter: singleConfig.adapter,
                 silentConnect: singleConfig.silentConnect,
                 auth: singleConfig.auth,
@@ -76,7 +77,8 @@ export async function setupConfig<Config extends SinglePocketConfig | MultiPocke
         setDefaultNeedTimestamp(singleConfig.modelTimestamp || false);
         await DatabaseManager.connect(singleConfig.url, {
             dbName: singleConfig.dbName || 'default',
-            password: singleConfig.password,
+            encryption: singleConfig.encryption,
+            encryptionPassword: singleConfig.encryptionPassword,
             adapter: singleConfig.adapter,
             silentConnect: singleConfig.silentConnect,
             auth: singleConfig.auth,

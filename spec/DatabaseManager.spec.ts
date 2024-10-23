@@ -42,7 +42,7 @@ describe('Database Manager', () => {
     });
 
     it('should connect and close database with password', async () => {
-        await DatabaseManager.connect('database-password', { dbName: 'database-password', adapter: 'memory', password: 'password', silentConnect: true, });
+        await DatabaseManager.connect('database-password', { dbName: 'database-password', adapter: 'memory', encryption: true, encryptionPassword: 'password', silentConnect: true, });
         expect(DatabaseManager.get('database-password')).toBeTruthy();
         await DatabaseManager.close();
     });

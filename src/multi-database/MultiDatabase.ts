@@ -25,7 +25,7 @@ export default class MultipleDatabase {
         const periodDbName = `${mainDbName}-${period}`;
         const periodDbConfig = {
             adapter: mainDbConfig.adapter,
-            password: mainDbConfig.password,
+            password: mainDbConfig.auth?.password,
             silentConnect: mainDbConfig.silentConnect,
             dbName: periodDbName,
         };
