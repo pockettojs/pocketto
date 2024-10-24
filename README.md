@@ -14,6 +14,8 @@
   </p>
 </div>
 
+<img src="https://raw.githubusercontent.com/pockettojs/pocketto-docs/master/docs/pocketto-demo.gif" alt="Pocketto Demo"><br />
+
 > **Communicate between different platforms. In real time.**
 
 Pocketto (ポケット) is a real time CRUD tools that can run in any javascript environment. Including:
@@ -28,12 +30,18 @@ Please follow the documentation at [pocketto.dev](https://pocketto.dev/)!
 
 ## Example Projects
 
-[React](https://github.com/pockettojs/pocketto-react-example)<br />
-[React Native](https://github.com/pockettojs/PockettoReactNativeExample)<br />
-[Vue](https://github.com/pockettojs/pocketto-vue-example)<br />
+You can setup the example projects so they will communicate with each other in real time. As well as within the same project.
+
+[React Example](https://github.com/pockettojs/pocketto-react-example)<br />
+[React Native Example](https://github.com/pockettojs/PockettoReactNativeExample)<br />
+[Vue Example](https://github.com/pockettojs/pocketto-vue-example)<br />
+
+## Contributing
+
+Please read [CONTRIBUTING.md](contribution/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)
 
-Copyright (c) 2022-present, Kent Ng
+Copyright (c) 2022-present, Kent Ng and its contributors.
