@@ -2,13 +2,14 @@ import { setEncryptionPassword, transformer } from 'src/encryption/encryption';
 import { isRealTime, setRealtime } from 'src/real-time/RealTimeModel';
 
 let PouchDB: any;
+let dbEnvironment: 'browser' | 'runtime' | 'react-native';
 
-export function setEnvironment(environment: 'browser' | 'node' | 'react-native') {
+export function setEnvironment(environment: 'browser' | 'runtime' | 'react-native') {
     const PouchDBFind = require('pouchdb-find');
     if (environment == 'browser') {
         PouchDB = require('pouchdb-browser').default || require('pouchdb-browser');
         PouchDB.plugin(PouchDBFind.default || PouchDBFind);
-    } else if (environment == 'node') {
+    } else if (environment == 'runtime') {
         PouchDB = require('pouchdb');
         PouchDB.plugin(PouchDBFind);
     } else if (environment == 'react-native') {
@@ -20,6 +21,7 @@ export function setEnvironment(environment: 'browser' | 'node' | 'react-native')
         // const SQLiteAdapter = SQLiteAdapterFactory(SQLite);
         // PouchDB.plugin(SQLiteAdapter);
     }
+    dbEnvironment = environment;
 }
 
 export const DEFAULT_DB_NAME = 'default';
@@ -44,7 +46,7 @@ export type PouchDBConfig = {
     encryptionPassword?: string;
 
     /**
-     * Adapter to use. Default is 'idb' (IndexedDB) for the browser and 'leveldb' for NodeJS.
+     * Adapter to use. Default is 'idb' (IndexedDB) for the browser and 'leveldb' for Node/Deno/Bun.
      * 'memory' | 'http' | 'idb' | 'leveldb' | 'websql'
      */
     adapter?: string;
@@ -80,7 +82,7 @@ export class DatabaseManager {
 
     public static async connect(url: string, config: PouchDBConfig): Promise<PouchDB.Database & DatabaseCustomConfig | null> {
         if (!PouchDB) {
-            setEnvironment('node');
+            setEnvironment('runtime');
         }
         if (config.adapter == 'memory') {
             const PouchDBAdapterMemory = require('pouchdb-adapter-memory');
@@ -96,15 +98,27 @@ export class DatabaseManager {
                 if (config.adapter) {
                     pouchConfig = { adapter: config.adapter, };
                 }
+                if (!config.dbName) {
+                    config.dbName = DEFAULT_DB_NAME;
+                }
                 if (config.auth) {
                     pouchConfig.skip_setup = true;
+                }
+                if (url.startsWith('http')) {
+                    config.adapter = 'http';
+                }
+                if (config.adapter == 'http' && config.auth && dbEnvironment === 'runtime') {
+                    const protocol = url.split('://')[0];
+                    console.log('protocol: ', protocol);
+                    url = url.replace(`${protocol}://`, `${protocol}://` + config.auth.username + ':' + config.auth.password + '@');
+                    console.log('url: ', url);
                 }
                 const pouchDb = new PouchDB(url, pouchConfig) as unknown as PouchDB.Database & DatabaseCustomConfig;
                 if (!config.silentConnect) {
                     console.log(`- Connected to PouchDB/CouchDB "${config.dbName}": ${url}`);
                     console.log(`- Adapter: ${pouchDb.adapter}`);
                 }
-                if (pouchDb.adapter == 'http' && config.auth) {
+                if (pouchDb.adapter == 'http' && config.auth && dbEnvironment !== 'runtime') {
                     PouchDB.plugin(require('pouchdb-authentication'));
                     if ((pouchDb as PouchDB.Database & DatabaseCustomConfig).login) {
                         await (pouchDb as PouchDB.Database & DatabaseCustomConfig).login(config.auth.username, config.auth.password);

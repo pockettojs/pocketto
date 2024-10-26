@@ -44,7 +44,7 @@ export async function setupConfig<Config extends SinglePocketConfig | MultiPocke
         const tempDb: { [dbName: string]: string } = {};
 
         const multiConfig = config as MultiPocketConfig & GlobalConfig;
-        setEnvironment(isBrowser ? 'browser' : 'node');
+        setEnvironment(isBrowser ? 'browser' : 'runtime');
         setDefaultDbName(multiConfig.databases[0].dbName || 'default');
         setDefaultNeedTimestamp(multiConfig.modelTimestamp || false);
         for (const singleConfig of multiConfig.databases) {
@@ -72,7 +72,7 @@ export async function setupConfig<Config extends SinglePocketConfig | MultiPocke
         setRealtime(multiConfig.realtimeUpdate || false);
     } else if ((config as SinglePocketConfig).url) {
         const singleConfig = config as SinglePocketConfig & GlobalConfig;
-        setEnvironment(isBrowser ? 'browser' : 'node');
+        setEnvironment(isBrowser ? 'browser' : 'runtime');
         setDefaultDbName(singleConfig.dbName || 'default');
         setDefaultNeedTimestamp(singleConfig.modelTimestamp || false);
         await DatabaseManager.connect(singleConfig.url, {
