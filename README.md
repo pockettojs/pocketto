@@ -1,4 +1,4 @@
-# Pocketto
+# Pocketto (ポケット)
 
 <div align="left">
   <p align="left">
@@ -14,14 +14,17 @@
   </p>
 </div>
 
-<img src="https://raw.githubusercontent.com/pockettojs/pockettojs.github.io/source/static/img/pocketto-demo.gif" alt="Pocketto Demo"><br />
+<div align="center">
+    <img src="https://raw.githubusercontent.com/pockettojs/pockettojs.github.io/source/static/img/pocketto-demo.gif" alt="Pocketto Demo"><br />
+    <div style="font-size: 12px;">Communicate between different platforms, in real time</div>
+    <br />
+    <br />
+</div>
 
-> **Communicate between different platforms. In real time.**
-
-Pocketto (ポケット) is a real time CRUD tools that can run in any javascript environment. Including:
+Pocketto is a real time ORM that can run in any javascript environment. Including:
 
 - Server Side Framework: [Node.js](https://nodejs.org/), [Deno](https://deno.land/), [Bun](https://bun.sh/).
-- Browser Side Framework: [React](https://reactjs.org/), [Vue](https://vuejs.org/).
+- Browser Side Framework: [React](https://reactjs.org/), [Vue](https://vuejs.org/), [Svelte](https://svelte.dev/).
 - Mobile App Framework: [React Native](https://reactnative.dev/).
 
 ## Getting Started
@@ -35,6 +38,7 @@ You can setup the example projects so they will communicate with each other in r
 [React Example](https://github.com/pockettojs/pocketto-react-example)<br />
 [React Native Example](https://github.com/pockettojs/PockettoReactNativeExample)<br />
 [Vue Example](https://github.com/pockettojs/pocketto-vue-example)<br />
+[Svelte Example](https://github.com/pockettojs/pocketto-svelte-example)<br />
 
 ## Contributing
 

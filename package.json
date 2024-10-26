@@ -22,8 +22,11 @@
     "keywords": [
         "PouchDB",
         "CouchDB",
-        "Model",
-        "Database"
+        "model",
+        "realtime",
+        "offline",
+        "database",
+        "ORM"
     ],
     "author": "Kent Ng",
     "license": "ISC",
