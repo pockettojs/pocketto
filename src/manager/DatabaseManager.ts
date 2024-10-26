@@ -107,22 +107,15 @@ export class DatabaseManager {
                 if (url.startsWith('http')) {
                     config.adapter = 'http';
                 }
-                if (config.adapter == 'http' && config.auth && dbEnvironment === 'runtime') {
+                let connectionUrl = url;
+                if (config.adapter == 'http' && config.auth) {
                     const protocol = url.split('://')[0];
-                    console.log('protocol: ', protocol);
-                    url = url.replace(`${protocol}://`, `${protocol}://` + config.auth.username + ':' + config.auth.password + '@');
-                    console.log('url: ', url);
+                    connectionUrl = url.replace(`${protocol}://`, `${protocol}://` + config.auth.username + ':' + config.auth.password + '@');
                 }
-                const pouchDb = new PouchDB(url, pouchConfig) as unknown as PouchDB.Database & DatabaseCustomConfig;
+                const pouchDb = new PouchDB(connectionUrl, pouchConfig) as unknown as PouchDB.Database & DatabaseCustomConfig;
                 if (!config.silentConnect) {
                     console.log(`- Connected to PouchDB/CouchDB "${config.dbName}": ${url}`);
                     console.log(`- Adapter: ${pouchDb.adapter}`);
-                }
-                if (pouchDb.adapter == 'http' && config.auth && dbEnvironment !== 'runtime') {
-                    PouchDB.plugin(require('pouchdb-authentication'));
-                    if ((pouchDb as PouchDB.Database & DatabaseCustomConfig).login) {
-                        await (pouchDb as PouchDB.Database & DatabaseCustomConfig).login(config.auth.username, config.auth.password);
-                    }
                 }
                 if (config.encryption) {
                     pouchDb.hasPassword = true;
