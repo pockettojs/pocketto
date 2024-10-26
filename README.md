@@ -14,7 +14,7 @@
   </p>
 </div>
 
-<img src="https://raw.githubusercontent.com/pockettojs/pocketto-docs/master/docs/pocketto-demo.gif" alt="Pocketto Demo"><br />
+<img src="https://raw.githubusercontent.com/pockettojs/pockettojs.github.io/source/static/img/pocketto-demo.gif" alt="Pocketto Demo"><br />
 
 > **Communicate between different platforms. In real time.**
 
