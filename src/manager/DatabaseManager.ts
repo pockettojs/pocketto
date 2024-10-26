@@ -6,8 +6,8 @@ let PouchDB: any;
 export function setEnvironment(environment: 'browser' | 'node' | 'react-native') {
     const PouchDBFind = require('pouchdb-find');
     if (environment == 'browser') {
-        PouchDB = require('pouchdb-browser').default;
-        PouchDB.plugin(PouchDBFind.default);
+        PouchDB = require('pouchdb-browser').default || require('pouchdb-browser');
+        PouchDB.plugin(PouchDBFind.default || PouchDBFind);
     } else if (environment == 'node') {
         PouchDB = require('pouchdb');
         PouchDB.plugin(PouchDBFind);
