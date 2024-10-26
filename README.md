@@ -40,6 +40,12 @@ You can setup the example projects so they will communicate with each other in r
 [Vue Example](https://github.com/pockettojs/pocketto-vue-example)<br />
 [Svelte Example](https://github.com/pockettojs/pocketto-svelte-example)<br />
 
+## Community
+
+You can join the community to ask questions, share your projects, and get help.
+
+- [Discord](https://discord.com/invite/xBeGRdFuVX)
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](contribution/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
