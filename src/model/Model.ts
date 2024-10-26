@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { QueryBuilder, Operator, OperatorValue, QueryableModel } from 'src/query-builder/QueryBuilder';
 import { RepoManager } from 'src/manager/RepoManager';
 
@@ -414,7 +412,7 @@ export class BaseModel {
                 resolve(true);
             });
         });
-    } 
+    }
 
     /**
      * Save a model into database
