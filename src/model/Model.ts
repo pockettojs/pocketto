@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { QueryBuilder, Operator, OperatorValue, QueryableModel } from 'src/query-builder/QueryBuilder';
 import { RepoManager } from 'src/manager/RepoManager';
 
@@ -69,6 +71,9 @@ export class BaseModel {
             softDelete = true;
         }
         return softDelete;
+    }
+    public get rev() {
+        return this._meta._rev;
     }
 
     // start of API feature
@@ -409,7 +414,7 @@ export class BaseModel {
                 resolve(true);
             });
         });
-    }
+    } 
 
     /**
      * Save a model into database
