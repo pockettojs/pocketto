@@ -70,6 +70,9 @@ export class BaseModel {
         }
         return softDelete;
     }
+    public get rev() {
+        return this._meta._rev;
+    }
 
     // start of API feature
     static apiName?: string;
