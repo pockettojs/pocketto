@@ -52,7 +52,7 @@ describe('Database Manager', () => {
     });
 
     it('should be able to set runtime environment to either node or browser', () => {
-        setEnvironment('node');
+        setEnvironment('runtime');
         expect(() => setEnvironment('browser')).toThrowError('self is not defined');
     });
 
