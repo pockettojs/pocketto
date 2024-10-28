@@ -740,16 +740,17 @@ export class BaseModel {
     /**
      * Check if the model or attribute is dirty
      * @param attribute can be undefined, if undefined, check if the model is dirty, otherwise check if the attribute is dirty
-     * @returns 
+     * @returns Boolean
      */
     isDirty(attribute?: ModelKey<this>): boolean {
-        // return this._meta._dirty whereas the boolean value is true
-        return this._meta._dirty.size !== 0 || this._meta._dirty.has(attribute as string);
+        // if 1 attribute is passed in, check if that attribute is being modified
+        // if no attribute passed in, check if any attribute has been modified
+        return this._meta._dirty.has(attribute as string) || this._meta._dirty.size > 0;
     }
     /**
      * Get the value of the attribute before it is dirty
      * @param attribute the attribute that which to check
-     * @returns 
+     * @returns ModelValue
      */
     getBeforeDirtyValue<Key extends ModelKey<this>>(attribute: Key): ModelValue<this, Key> {
         return this._meta._before_dirty[attribute as string];
