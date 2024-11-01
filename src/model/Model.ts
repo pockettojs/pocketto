@@ -116,30 +116,33 @@ export class BaseModel {
     // start of object construction
     public fill(attributes: Partial<ModelType<this>>): void {
         if (attributes.id) attributes.id = attributes.id.replace(this.cName + '.', '');
-        if (attributes._meta?._before_dirty) delete (attributes as any)._meta._before_dirty;
-        if (attributes._meta?._dirty) delete (attributes as any)._meta._dirty;
+
+        if (attributes._meta) {
+            delete (attributes as any)._meta._before_dirty;
+            delete (attributes as any)._meta._dirty;
+        }
 
         // convert function string to function
-        for (const key in attributes) {
+        for (const [key, val,] of Object.entries(attributes)) {
             // @ts-ignore
-            if (typeof attributes[key as keyof ModelType<this>] === 'string' && attributes[key as keyof ModelType<this>]?.includes('=>')) {
-                const funcString = attributes[key as keyof ModelType<this>] as string;
-                const func = new Function('return ' + funcString)();
-                attributes[key as keyof ModelType<this>] = func;
+            const _key = key as keyof ModelType<this>;
+            if (typeof val === 'string' && val.includes('=>')) {
+                const func = new Function(`return ${val}`)();
+                attributes[_key] = func;
             }
         }
 
         Object.assign(this, attributes);
         if (!this._meta) this._meta = {} as this['_meta'];
-        if (!this._meta._dirty) this._meta._dirty = new Set<string>();
-        if (!this._meta._before_dirty) this._meta._before_dirty = {};
+        this.sanitizeMetaIfNone(this);
+
         this._meta._rev = (this as any)._rev;
         delete (this as any)._rev;
+
         for (const key of Object.keys(attributes)) {
             this._meta._before_dirty[key] = this[key as keyof this];
             this._meta._dirty.add(key);
         }
-        if (!this.relationships) this.relationships = {};
         this.bindRelationships();
     }
     constructor(attributes?: any) {
@@ -161,9 +164,7 @@ export class BaseModel {
                 // }
 
                 if (!target._meta) target._meta = {} as this['_meta'];
-                if (!target._meta._dirty) target._meta._dirty = new Set<string>();
-                if (!target._meta._before_dirty) target._meta._before_dirty = {};
-
+                this.sanitizeMetaIfNone(target);
 
                 if (key === '_meta' || key === 'relationships') {
                     target[key] = value;
@@ -198,18 +199,16 @@ export class BaseModel {
         const meta = { ...this._meta, };
         const result = convertIdFieldsToDocIds(this, this);
         this.fill(result);
-        meta._dirty = new Set<string>();
-        meta._before_dirty = {};
         this._meta = meta;
+        this.sanitizeMeta(this);
         return this;
     }
     public setForeignFieldsToModelId(): this {
         const meta = { ...this._meta, };
         const result = convertIdFieldsToModelIds(this, this);
         this.fill(result);
-        meta._dirty = new Set<string>();
-        meta._before_dirty = {};
         this._meta = meta;
+        this.sanitizeMeta(this);
         return this;
     }
     // end of foreign key handling
@@ -335,10 +334,7 @@ export class BaseModel {
                         child[foreignKey] = this.docId;
                         newChild.fill(child);
                         await newChild.save();
-                        const meta = { ...newChild._meta, };
-                        meta._dirty = new Set<string>();
-                        meta._before_dirty = {};
-                        newChild._meta = meta;
+                        this.sanitizeMeta(newChild);
                         newChildren.push(newChild);
                     }
                     this[field] = newChildren as ModelValue<this, typeof field>;
@@ -354,10 +350,7 @@ export class BaseModel {
                     const newChild = new (child.getClass() as ModelStatic<BaseModel>)();
                     newChild.fill(child);
                     await newChild.save();
-                    const meta = { ...newChild._meta, };
-                    meta._dirty = new Set<string>();
-                    meta._before_dirty = {};
-                    newChild._meta = meta;
+                    this.sanitizeMeta(newChild);
                     this[field] = newChild as ModelValue<this, typeof field>;
                 }
             }
@@ -413,6 +406,16 @@ export class BaseModel {
             });
         });
     }
+
+    private sanitizeMeta = (instance: BaseModel) => {
+        instance._meta._dirty = new Set<string>();
+        instance._meta._before_dirty = {};
+    };
+
+    private sanitizeMetaIfNone = (instance: BaseModel) => {
+        if (!instance._meta._dirty) instance._meta._dirty = new Set<string>();
+        if (!instance._meta._before_dirty) instance._meta._before_dirty = {};
+    };
 
     /**
      * Save a model into database
@@ -501,8 +504,7 @@ export class BaseModel {
         this.id = this.modelId;
         this.setForeignFieldsToModelId();
         if (!this.relationships) this.bindRelationships();
-        this._meta._dirty = new Set<string>();
-        this._meta._before_dirty = {};
+        this.sanitizeMeta(this);
         return this;
     }
     /**
