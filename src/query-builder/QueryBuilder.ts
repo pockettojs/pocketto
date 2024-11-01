@@ -426,7 +426,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
             delete (item as ModelType<T> & { _id?: string })._id;
         }
         model = new klass(item) as T;
-        model._meta._dirty = {};
+        model._meta._dirty = new Set<string>();
         model._meta._before_dirty = {};
         if (model._tempPeriod) {
             model._meta._period = model._tempPeriod;

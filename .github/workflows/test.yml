@@ -1,0 +1,68 @@
+name: pnpm CI
+
+on:
+  push:
+    branches:  
+      - '*'  # This means any branch
+  pull_request:
+    branches:  
+      - '*'  # This means any branch
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [20]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Install test dependency
+        run: pnpm add --save-dev @types/node  # Use pnpm for consistency
+      
+      - name: Run tests
+        id: tests  # Give this step an ID to reference later
+        run: |
+            output=$(pnpm run coverage 2>&1) || echo "Tests failed with exit code $?"
+            echo "$output"
+            # Extract the number of failed tests directly
+            failed_count=$(echo "$output" | grep -oP '\d+ failures?' | awk '{print $1}' || echo '0')
+            echo "failed_count=${failed_count}" >> $GITHUB_ENV  # Set the failed count as a GitHub environment variable
+
+      # Show number of test cases failed at page
+      - name: Comment on PR with test results
+        if: github.event_name == 'pull_request'  # Only run this if it's a pull request
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const count = process.env.failed_count || '0';
+            const message = count > 0 ? `${count} test cases failed.` : "All tests passed.";
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.payload.pull_request.number,
+              body: message
+            });
+
+      # Fail the job if tests failed for both push and PR
+      - name: Fail the job if tests failed
+        run: |
+          count=${{ env.failed_count || '0' }}
+          if [ "$count" -gt 0 ]; then
+              echo "$count test cases failed."
+              exit 1  # Fail the job if there are test failures
+          else
+              echo "All tests passed."
+          fi

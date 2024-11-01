@@ -101,7 +101,7 @@ export class BaseModel {
     public _meta!: {
         _id: string;
         _fallback_api_doc: boolean;
-        _dirty: { [key: string]: boolean };
+        _dirty: Set<string>;
         _before_dirty: { [key: string]: any };
         _update_callbacks?: Function[];
         _rev: string;
@@ -131,13 +131,13 @@ export class BaseModel {
 
         Object.assign(this, attributes);
         if (!this._meta) this._meta = {} as this['_meta'];
-        if (!this._meta._dirty) this._meta._dirty = {};
+        if (!this._meta._dirty) this._meta._dirty = new Set<string>();
         if (!this._meta._before_dirty) this._meta._before_dirty = {};
         this._meta._rev = (this as any)._rev;
         delete (this as any)._rev;
         for (const key of Object.keys(attributes)) {
             this._meta._before_dirty[key] = this[key as keyof this];
-            this._meta._dirty[key] = true;
+            this._meta._dirty.add(key);
         }
         if (!this.relationships) this.relationships = {};
         this.bindRelationships();
@@ -161,7 +161,7 @@ export class BaseModel {
                 // }
 
                 if (!target._meta) target._meta = {} as this['_meta'];
-                if (!target._meta._dirty) target._meta._dirty = {};
+                if (!target._meta._dirty) target._meta._dirty = new Set<string>();
                 if (!target._meta._before_dirty) target._meta._before_dirty = {};
 
 
@@ -174,7 +174,7 @@ export class BaseModel {
                 }
                 try {
                     target[key] = value;
-                    target._meta._dirty[key as string] = true;
+                    target._meta._dirty.add(key as string);
                 } catch (e) {
                     // try fix that the target[key] might only have getter
                     return true;
@@ -198,7 +198,7 @@ export class BaseModel {
         const meta = { ...this._meta, };
         const result = convertIdFieldsToDocIds(this, this);
         this.fill(result);
-        meta._dirty = {};
+        meta._dirty = new Set<string>();
         meta._before_dirty = {};
         this._meta = meta;
         return this;
@@ -207,7 +207,7 @@ export class BaseModel {
         const meta = { ...this._meta, };
         const result = convertIdFieldsToModelIds(this, this);
         this.fill(result);
-        meta._dirty = {};
+        meta._dirty = new Set<string>();
         meta._before_dirty = {};
         this._meta = meta;
         return this;
@@ -336,7 +336,7 @@ export class BaseModel {
                         newChild.fill(child);
                         await newChild.save();
                         const meta = { ...newChild._meta, };
-                        meta._dirty = {};
+                        meta._dirty = new Set<string>();
                         meta._before_dirty = {};
                         newChild._meta = meta;
                         newChildren.push(newChild);
@@ -355,7 +355,7 @@ export class BaseModel {
                     newChild.fill(child);
                     await newChild.save();
                     const meta = { ...newChild._meta, };
-                    meta._dirty = {};
+                    meta._dirty = new Set<string>();
                     meta._before_dirty = {};
                     newChild._meta = meta;
                     this[field] = newChild as ModelValue<this, typeof field>;
@@ -427,7 +427,7 @@ export class BaseModel {
             if (field === 'relationships') continue;
             if (field === 'needTimestamp') continue;
             if (field === 'cName') continue;
-            if (this._meta._dirty && !this._meta._dirty[field] && !Array.isArray(this[field])) continue;
+            if (this._meta._dirty && !this._meta._dirty.has(field) && !Array.isArray(this[field])) continue;
             if (this[field] instanceof BaseModel) continue;
             if (Array.isArray(this[field]) && (this[field] as any)[0] instanceof BaseModel) continue;
             newAttributes[field] = this[field];
@@ -501,7 +501,7 @@ export class BaseModel {
         this.id = this.modelId;
         this.setForeignFieldsToModelId();
         if (!this.relationships) this.bindRelationships();
-        this._meta._dirty = {};
+        this._meta._dirty = new Set<string>();
         this._meta._before_dirty = {};
         return this;
     }
@@ -538,7 +538,7 @@ export class BaseModel {
      */
     async removeField(field: string): Promise<this> {
         delete this[field as keyof this];
-        this._meta._dirty[field] = true;
+        this._meta._dirty.add(field);
         return this.save();
     }
     // end of CRUD operation
@@ -740,17 +740,17 @@ export class BaseModel {
     /**
      * Check if the model or attribute is dirty
      * @param attribute can be undefined, if undefined, check if the model is dirty, otherwise check if the attribute is dirty
-     * @returns 
+     * @returns Boolean
      */
     isDirty(attribute?: ModelKey<this>): boolean {
-        if (attribute) return !!this._meta._dirty[attribute as string];
-        // return this._meta._dirty whereas the boolean value is true
-        return Object.keys(this._meta._dirty).some(key => this._meta._dirty[key]);
+        // if 1 attribute is passed in, check if that attribute is being modified
+        // if no attribute passed in, check if any attribute has been modified
+        return this._meta._dirty.has(attribute as string) || this._meta._dirty.size > 0;
     }
     /**
      * Get the value of the attribute before it is dirty
      * @param attribute the attribute that which to check
-     * @returns 
+     * @returns ModelValue
      */
     getBeforeDirtyValue<Key extends ModelKey<this>>(attribute: Key): ModelValue<this, Key> {
         return this._meta._before_dirty[attribute as string];

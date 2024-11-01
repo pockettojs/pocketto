@@ -11,8 +11,8 @@
     },
     "scripts": {
         "compile:type": "tsc --project tsconfig-node.json --declaration --declarationDir dist --emitDeclarationOnly && tsc-alias -p tsconfig-types.json",
-        "compile:browser": "tsc --project tsconfig-browser.json && tsc-alias -p tsconfig-browser.json && rm -Rf dist/node/mocks && rm -Rf dist/node/spec && rm -Rf dist/node/debug",
-        "compile:node": "tsc --project tsconfig-node.json && tsc-alias -p tsconfig.json && rm -Rf dist/browser/mocks && rm -Rf dist/browser/spec && rm -Rf dist/browser/debug",
+        "compile:browser": "tsc --project tsconfig-browser.json && tsc-alias -p tsconfig-browser.json && ts-node src/commands/cleanup.ts",
+        "compile:node": "tsc --project tsconfig-node.json && tsc-alias -p tsconfig.json && ts-node src/commands/cleanup.ts",
         "build": "npm run compile:type && npm run compile:browser && npm run compile:node && npm pack",
         "lint": "eslint src/**/*.ts",
         "repl": "ts-node --project tsconfig.json -r tsconfig-paths/register",
