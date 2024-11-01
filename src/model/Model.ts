@@ -19,7 +19,6 @@ import { getModelClass } from './ModelDecorator';
 import { MultiQueryBuilder } from 'src/multi-database/MultiQueryBuilder';
 import MultipleDatabase from 'src/multi-database/MultiDatabase';
 import { getMainDatabaseName, ShardingMode } from 'src/multi-database/MultiDatabaseConfig';
-import { sanitizeMeta, sanitizeMetaIfNone } from 'src/helpers/ModelHelper';
 
 export function setDefaultDbName(dbName: string): string {
     BaseModel.dbName = dbName;
@@ -135,7 +134,7 @@ export class BaseModel {
 
         Object.assign(this, attributes);
         if (!this._meta) this._meta = {} as this['_meta'];
-        sanitizeMetaIfNone(this);
+        this.sanitizeMetaIfNone(this);
 
         this._meta._rev = (this as any)._rev;
         delete (this as any)._rev;
@@ -165,7 +164,7 @@ export class BaseModel {
                 // }
 
                 if (!target._meta) target._meta = {} as this['_meta'];
-                sanitizeMetaIfNone(target);
+                this.sanitizeMetaIfNone(target);
 
                 if (key === '_meta' || key === 'relationships') {
                     target[key] = value;
@@ -201,7 +200,7 @@ export class BaseModel {
         const result = convertIdFieldsToDocIds(this, this);
         this.fill(result);
         this._meta = meta;
-        sanitizeMeta(this);
+        this.sanitizeMeta(this);
         return this;
     }
     public setForeignFieldsToModelId(): this {
@@ -209,7 +208,7 @@ export class BaseModel {
         const result = convertIdFieldsToModelIds(this, this);
         this.fill(result);
         this._meta = meta;
-        sanitizeMeta(this);
+        this.sanitizeMeta(this);
         return this;
     }
     // end of foreign key handling
@@ -335,7 +334,7 @@ export class BaseModel {
                         child[foreignKey] = this.docId;
                         newChild.fill(child);
                         await newChild.save();
-                        sanitizeMeta(newChild);
+                        this.sanitizeMeta(newChild);
                         newChildren.push(newChild);
                     }
                     this[field] = newChildren as ModelValue<this, typeof field>;
@@ -351,7 +350,7 @@ export class BaseModel {
                     const newChild = new (child.getClass() as ModelStatic<BaseModel>)();
                     newChild.fill(child);
                     await newChild.save();
-                    sanitizeMeta(newChild);
+                    this.sanitizeMeta(newChild);
                     this[field] = newChild as ModelValue<this, typeof field>;
                 }
             }
@@ -407,6 +406,16 @@ export class BaseModel {
             });
         });
     }
+
+    private sanitizeMeta = (instance: BaseModel) => {
+        instance._meta._dirty = new Set<string>();
+        instance._meta._before_dirty = {};
+    };
+
+    private sanitizeMetaIfNone = (instance: BaseModel) => {
+        if (!instance._meta._dirty) instance._meta._dirty = new Set<string>();
+        if (!instance._meta._before_dirty) instance._meta._before_dirty = {};
+    };
 
     /**
      * Save a model into database
@@ -495,7 +504,7 @@ export class BaseModel {
         this.id = this.modelId;
         this.setForeignFieldsToModelId();
         if (!this.relationships) this.bindRelationships();
-        sanitizeMeta(this);
+        this.sanitizeMeta(this);
         return this;
     }
     /**
