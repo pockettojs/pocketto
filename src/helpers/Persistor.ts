@@ -30,13 +30,14 @@ function get(key: string) {
 
 
 export class Persistor {
+    static key: string = this.name;
     static set<T>(value: T) {
-        set(this.name, value);
+        set(this.key, value);
     }
     static clear() {
-        clear(this.name);
+        clear(this.key);
     }
     static get<T>(): T | undefined {
-        return get(this.name);
+        return get(this.key);
     }
 }
