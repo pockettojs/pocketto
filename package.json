@@ -1,6 +1,6 @@
 {
     "name": "pocketto",
-    "version": "0.1.11",
+    "version": "0.1.12",
     "description": "Pocketto is a PouchDB wrapper that provides a simple and easy-to-use API for interacting with PouchDB and CouchDB.",
     "main": "dist/node/src/index.js",
     "types": "dist/src/index.d.ts",
@@ -9,6 +9,7 @@
         "type": "git",
         "url": "https://github.com/pockettojs/pocketto"
     },
+    "homepage": "https://pocketto.dev",
     "scripts": {
         "compile:type": "tsc --project tsconfig-node.json --declaration --declarationDir dist --emitDeclarationOnly && tsc-alias -p tsconfig-types.json",
         "compile:browser": "tsc --project tsconfig-browser.json && tsc-alias -p tsconfig-browser.json && ts-node src/commands/cleanup.ts",
