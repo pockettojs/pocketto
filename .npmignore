@@ -129,5 +129,6 @@ tsconfig.json
 #src files
 index.ts
 src/
+!dist/src/
 
 package-node.json
