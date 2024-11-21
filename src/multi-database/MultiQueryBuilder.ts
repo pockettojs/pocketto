@@ -87,7 +87,6 @@ export class MultiQueryBuilder<T extends BaseModel, K extends string[] = []> {
 
     private async getDbs() {
         const transactionDatabases = MultipleDatabase.databases;
-        console.log('transactionDatabases: ', transactionDatabases);
         return transactionDatabases;
     }
 
@@ -124,10 +123,8 @@ export class MultiQueryBuilder<T extends BaseModel, K extends string[] = []> {
             return results.flat();
         }
 
-        console.log('dbs: ', dbs);
         const results = await Promise.all(dbs.map(async (db) => {
             const result = await QueryBuilder.query(this.model, this.queryBuilder.getRelationships(), db!.config!.dbName).setPeriod(db!.period).setIsMultiDatabase(false).setQueries(query).get();
-            console.log('result: ', result);
             return result;
         }));
         return results.flat();

@@ -74,8 +74,7 @@ export default class MultipleDatabase {
         const isExist = data?.databases.find((db: MultiDatabaseConfig) => db.period === period);
         if (!isExist) {
             data?.databases.push(result);
-            const response = await db?.put(data);
-            console.log('response: ', response);
+            await db?.put(data);
         }
 
         return result;
