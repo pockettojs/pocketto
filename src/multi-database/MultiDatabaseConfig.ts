@@ -5,8 +5,10 @@ export enum ShardingMode {
     None = 'none',
 }
 
-export function setMainDatabaseName(dbName: string) {
+export function setMainDatabaseName(dbName: string, adapter: string) {
     MultipleDatabase.dbName = dbName;
+    MultipleDatabase.adapter = adapter;
+    MultipleDatabase.init();
 }
 
 export function getMainDatabaseName() {

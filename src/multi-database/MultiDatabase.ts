@@ -1,5 +1,4 @@
 import { DatabaseCustomConfig, DatabaseManager, PouchDBConfig, syncDatabases } from '..';
-import { BaseModel } from '..';
 
 type MultiDatabaseConfig = {
     name: string;
@@ -8,11 +7,25 @@ type MultiDatabaseConfig = {
     config: PouchDBConfig;
 };
 
+
 export default class MultipleDatabase {
     static dbName: string = 'master'; // Main database name
+    static adapter: string = 'idb'; // Default adapter for the database
 
     // Store daily data like Transaction, Order, etc.
     static databases: MultiDatabaseConfig[] = [];
+
+    static async init() {
+        const db = await DatabaseManager.connect(this.dbName, { dbName: this.dbName, adapter: this.adapter, silentConnect: true, });
+        const data = await db?.get(`MultipleDatabases.${this.dbName}`).catch(() => undefined) as { databases: MultiDatabaseConfig[] } | undefined;
+        if (!data) {
+            await db?.put({
+                _id: `MultipleDatabases.${this.dbName}`,
+                databases: [],
+            });
+        }
+        this.databases = data?.databases || [];
+    }
 
     static async createDatabase(
         period: string,
@@ -39,7 +52,7 @@ export default class MultipleDatabase {
             periodDb = await DatabaseManager.connect(
                 periodDbName,
                 periodDbConfig
-            );
+            ) as PouchDB.Database & DatabaseCustomConfig;
             periodDb!.config = periodDbConfig;
         }
 
@@ -55,7 +68,15 @@ export default class MultipleDatabase {
             localDatabaseName: `${mainDbName}-${period}`,
             config: periodDbConfig,
         };
-        this.databases.push(result);
+
+        const db = await DatabaseManager.connect(this.dbName, { dbName: this.dbName, adapter: this.adapter, silentConnect: true, });
+        const data = await db?.get(`MultipleDatabases.${this.dbName}`) as { databases: MultiDatabaseConfig[] };
+        const isExist = data?.databases.find((db: MultiDatabaseConfig) => db.period === period);
+        if (!isExist) {
+            data?.databases.push(result);
+            const response = await db?.put(data);
+            console.log('response: ', response);
+        }
 
         return result;
     }

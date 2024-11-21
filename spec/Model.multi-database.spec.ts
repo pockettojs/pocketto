@@ -13,7 +13,7 @@ describe('Model Multi Database', () => {
 
     beforeEach(async () => {
         await DatabaseManager.connect('model-multi-database', { dbName: 'model-multi-database', adapter: 'memory', silentConnect: true, });
-        setMainDatabaseName('model-multi-database');
+        setMainDatabaseName('model-multi-database', 'memory');
     });
 
     it('should be able to create and find a new model', async () => {
