@@ -15,7 +15,7 @@ export default class MultipleDatabase {
     // Store daily data like Transaction, Order, etc.
     static databases: MultiDatabaseConfig[] = [];
 
-    static async init() {
+    static async boot() {
         const db = await DatabaseManager.connect(this.dbName, { dbName: this.dbName, adapter: this.adapter, silentConnect: true, });
         const data = await db?.get(`MultipleDatabases.${this.dbName}`).catch(() => undefined) as { databases: MultiDatabaseConfig[] } | undefined;
         if (!data) {
@@ -25,6 +25,14 @@ export default class MultipleDatabase {
             });
         }
         this.databases = data?.databases || [];
+
+        await Promise.all(this.databases.map(async (db) => {
+            try {
+                await DatabaseManager.connect(db.localDatabaseName, db.config);
+            } catch (error) {
+                console.error(error);
+            }
+        }));
     }
 
     static async createDatabase(
