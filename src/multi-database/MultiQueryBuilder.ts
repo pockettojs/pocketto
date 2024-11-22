@@ -86,8 +86,7 @@ export class MultiQueryBuilder<T extends BaseModel, K extends string[] = []> {
     }
 
     private async getDbs() {
-        const transactionDatabases = MultipleDatabase.databases;
-        return transactionDatabases;
+        return MultipleDatabase.databases;
     }
 
     private async getDbsName() {
@@ -166,7 +165,7 @@ export class MultiQueryBuilder<T extends BaseModel, K extends string[] = []> {
     async create(attributes: NewModelType<T>, currentPeriod = moment().format('YYYY-MM'), fallbackCreate = false): Promise<PouchDB.Core.Response> {
         const dbs = await this.getDbs();
         let db = dbs.find(db => db.period === currentPeriod);
-        if (!db) {
+        if (db === undefined) {
             db = await MultipleDatabase.createDatabase(currentPeriod);
         }
         return QueryBuilder.query(this.model, this.queryBuilder.getRelationships(), db.config.dbName).create(attributes, fallbackCreate);

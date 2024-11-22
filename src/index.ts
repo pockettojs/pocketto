@@ -1,7 +1,7 @@
 import { onDocChange } from 'src/real-time/RealTimeModel';
 import { setEnvironment } from '.';
 import { setRealtime } from '.';
-import { getMainDatabaseName, setMainDatabaseName } from './multi-database/MultiDatabaseConfig';
+import { getMainDatabaseName, setMainDatabaseName, bootDatabases } from './multi-database/MultiDatabaseConfig';
 import { setIdMethod } from './id/Id';
 
 export * from 'src/manager/DatabaseManager';
@@ -24,4 +24,5 @@ export const p = {
     onDocChange: onDocChange,
     setMainDatabaseName: setMainDatabaseName,
     getMainDatabaseName: getMainDatabaseName,
+    bootDatabases: bootDatabases,
 };

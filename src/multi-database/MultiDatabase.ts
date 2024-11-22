@@ -78,14 +78,16 @@ export default class MultipleDatabase {
         };
 
         const db = await DatabaseManager.connect(this.dbName, { dbName: this.dbName, adapter: this.adapter, silentConnect: true, });
-        const data = await db?.get(`MultipleDatabases.${this.dbName}`) as { databases: MultiDatabaseConfig[] };
+        const data = await db?.get(`MultipleDatabases.${this.dbName}`).catch(() => ({ databases: [], })) as { databases: MultiDatabaseConfig[] };
         const isExist = data?.databases.find((db: MultiDatabaseConfig) => db.period === period);
         if (!isExist) {
+            this.databases.push(result);
             data?.databases.push(result);
-            await db?.put(data);
+            await db?.post(data);
         }
 
         return result;
+
     }
 
     static async getDatabase(period: string): Promise<MultiDatabaseConfig | undefined> {
