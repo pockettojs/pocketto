@@ -46,11 +46,13 @@ export function encrypt(data: any, dbName: string): string {
     delete data._id;
     delete data._rev;
     const ciphertext = sodium.crypto_secretbox_easy(JSON.stringify(data), nonce[dbName], key[dbName]);
-    const base64CipherText = sodium.to_base64(ciphertext);
+    let base64CipherText = sodium.to_base64(ciphertext);
+    base64CipherText = base64CipherText.replace(/=/g, '');
     return base64CipherText;
 }
 
 export function decrypt(data: string, dbName: string): any {
+    data = data.replace(/=/g, '');
     const ciphertext = sodium.from_base64(data);
     const decrypted = sodium.crypto_secretbox_open_easy(ciphertext, nonce[dbName], key[dbName]);
     const decoder = new TextDecoder('utf-8');
