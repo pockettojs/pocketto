@@ -1,4 +1,4 @@
-import MultipleDatabase from './MultiDatabase';
+import { MultipleDatabase } from './MultiDatabase';
 
 export enum ShardingMode {
     TimeSeries = 'time-series',

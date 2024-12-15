@@ -17,7 +17,7 @@ import { RelationshipType } from 'src/definitions/RelationshipType';
 import { DatabaseManager, convertIdFieldsToDocIds, convertIdFieldsToModelIds, getRelationships } from '..';
 import { getModelClass } from './ModelDecorator';
 import { MultiQueryBuilder } from 'src/multi-database/MultiQueryBuilder';
-import MultipleDatabase from 'src/multi-database/MultiDatabase';
+import { MultipleDatabase } from 'src/multi-database/MultiDatabase';
 import { getMainDatabaseName, ShardingMode } from 'src/multi-database/MultiDatabaseConfig';
 
 export function setDefaultDbName(dbName: string): string {
@@ -251,7 +251,7 @@ export class BaseModel {
     static async find<T extends BaseModel>(this: ModelStatic<T>, primaryKey?: string | string): Promise<T | undefined> {
         if (!primaryKey) return undefined;
         if ((new this).sMode === ShardingMode.TimeSeries) {
-            const result = await Promise.all(MultipleDatabase.databases.map(async (db) => {
+            const result = await Promise.all(Array.from(MultipleDatabase.databases.values()).map(async (db) => {
                 const item = await DatabaseManager
                     .get(db.localDatabaseName)
                     ?.get(`${(new this).cName}.${primaryKey}`)

@@ -1,19 +1,20 @@
 import { DatabaseCustomConfig, DatabaseManager, PouchDBConfig, syncDatabases } from '..';
 
-type MultiDatabaseConfig = {
+export type MultiDatabaseConfig = {
     name: string;
     period: string;
     localDatabaseName: string;
     config: PouchDBConfig;
+    remoteConfig?: PouchDBConfig;
 };
 
 
-export default class MultipleDatabase {
+export class MultipleDatabase {
     static dbName: string = 'master'; // Main database name
     static adapter: string = 'idb'; // Default adapter for the database
 
     // Store daily data like Transaction, Order, etc.
-    static databases: MultiDatabaseConfig[] = [];
+    static databases: Map<string, MultiDatabaseConfig> = new Map();
 
     static async boot() {
         const db = await DatabaseManager.connect(this.dbName, { dbName: this.dbName, adapter: this.adapter, silentConnect: true, });
@@ -24,20 +25,21 @@ export default class MultipleDatabase {
                 databases: [],
             });
         }
-        this.databases = data?.databases || [];
-
-        await Promise.all(this.databases.map(async (db) => {
-            try {
-                await DatabaseManager.connect(db.localDatabaseName, db.config);
-            } catch (error) {
-                console.error(error);
+        for (const db of data?.databases || []) {
+            if (!this.databases.has(db.period)) {
+                try {
+                    await DatabaseManager.connect(db.localDatabaseName, db.config);
+                } catch (error) {
+                    console.error(error);
+                }
             }
-        }));
+            this.databases.set(db.period, db);
+        }
     }
 
     static async createDatabase(
         period: string,
-        remoteDatabaseCreation?: (periodDbConfig: PouchDBConfig) => PouchDBConfig | Promise<PouchDBConfig | undefined>
+        remoteConfig?: PouchDBConfig & { url: string; }
     ): Promise<MultiDatabaseConfig> {
         const mainDbName = this.dbName;
         const mainDbConfig = DatabaseManager.databases[mainDbName]?.config;
@@ -64,10 +66,12 @@ export default class MultipleDatabase {
             periodDb!.config = periodDbConfig;
         }
 
-        const remoteDbConfig = await remoteDatabaseCreation?.(periodDbConfig);
-        if (remoteDbConfig?.dbName && periodDb?.config?.dbName) {
-            await DatabaseManager.connect(remoteDbConfig.dbName, remoteDbConfig);
-            syncDatabases(periodDb.config?.dbName, remoteDbConfig.dbName);
+        if (remoteConfig && remoteConfig?.dbName && periodDb?.config?.dbName) {
+            await DatabaseManager.connect(remoteConfig.url, remoteConfig);
+            syncDatabases(periodDb.config?.dbName, remoteConfig.dbName);
+            if (!remoteConfig.silentConnect) {
+                console.log(`Syncing ${periodDb.config?.dbName} with ${remoteConfig.dbName}`);
+            }
         }
 
         const result = {
@@ -75,22 +79,27 @@ export default class MultipleDatabase {
             period,
             localDatabaseName: `${mainDbName}-${period}`,
             config: periodDbConfig,
+            remoteConfig,
         };
 
         const db = await DatabaseManager.connect(this.dbName, { dbName: this.dbName, adapter: this.adapter, silentConnect: true, });
         const data = await db?.get(`MultipleDatabases.${this.dbName}`).catch(() => ({ databases: [], })) as { databases: MultiDatabaseConfig[] };
-        const isExist = data?.databases.find((db: MultiDatabaseConfig) => db.period === period);
+        const isExist = this.databases.get(period);
         if (!isExist) {
-            this.databases.push(result);
+            this.databases.set(period, result);
             data?.databases.push(result);
             await db?.post(data);
+        } else {
+            this.databases.set(period, result);
+            const index = data.databases.findIndex(db => db.period === period);
+            data.databases[index] = result;
+            await db?.put(data);
         }
 
         return result;
-
     }
 
     static async getDatabase(period: string): Promise<MultiDatabaseConfig | undefined> {
-        return this.databases.find(db => db.period === period);
+        return this.databases.get(period);
     }
 }

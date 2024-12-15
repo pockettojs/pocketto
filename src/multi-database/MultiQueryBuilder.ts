@@ -2,7 +2,7 @@ import { ValidDotNotationArray } from 'src/definitions/DotNotation';
 import { BaseModel, Operator, OperatorValue, QueryableModel, QueryBuilder } from '..';
 import { getMainDatabaseName, ShardingMode } from './MultiDatabaseConfig';
 import { ModelKey, NewModelType } from 'src/definitions/Model';
-import MultipleDatabase from './MultiDatabase';
+import { MultiDatabaseConfig, MultipleDatabase } from './MultiDatabase';
 import moment from 'moment';
 
 export class MultiQueryBuilder<T extends BaseModel, K extends string[] = []> {
@@ -86,7 +86,7 @@ export class MultiQueryBuilder<T extends BaseModel, K extends string[] = []> {
     }
 
     private async getDbs() {
-        return MultipleDatabase.databases;
+        return Array.from(MultipleDatabase.databases.values());
     }
 
     private async getDbsName() {

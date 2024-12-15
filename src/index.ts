@@ -7,6 +7,7 @@ import { setIdMethod } from './id/Id';
 export * from 'src/manager/DatabaseManager';
 export * from 'src/manager/RepoManager';
 export * from 'src/multi-database/MultiDatabaseConfig';
+export * from 'src/multi-database/MultiDatabase';
 
 export * from 'src/id/Id';
 export * from 'src/model/Model';
