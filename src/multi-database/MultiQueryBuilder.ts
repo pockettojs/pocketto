@@ -95,10 +95,17 @@ export class MultiQueryBuilder<T extends BaseModel, K extends string[] = []> {
     }
 
     async get() {
-        const dbs = await this.getDbs();
-        const dbNames = await this.getDbsName();
+        let dbs = await this.getDbs();
+        let dbNames = await this.getDbsName();
         const query = this.getQuery();
 
+        const queryBuilderDbName = this.queryBuilder.getDbName();
+        // if this.model.dName end match with regex /-\d{4}-\d{2}/
+        // if this.model.dName start with master database name
+        if (queryBuilderDbName && queryBuilderDbName.match(/-\d{4}-\d{2}/) && queryBuilderDbName.startsWith(getMainDatabaseName())) {
+            dbs = dbs.filter(db => db.localDatabaseName === queryBuilderDbName);
+            dbNames = dbNames.filter(db => db === queryBuilderDbName);
+        }
 
         // handle pagination
         if (typeof this.paginateLimit === 'number' && typeof this.paginateSkip === 'number') {

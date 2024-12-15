@@ -166,6 +166,9 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
     getForeignKey() {
         return this.foreignKey;
     }
+    getDbName() {
+        return this.dbName;
+    }
 
     async find(id?: string, forceFind?: boolean): Promise<T | undefined> {
         if (!id) return undefined;
