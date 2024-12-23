@@ -42,6 +42,12 @@ function toMangoQuery<T extends BaseModel, Key extends ModelKey<T>, O extends Op
     if (field === 'id') {
         field = '_id' as Key;
     }
+    if (value === undefined && operator === '=') {
+        return { [field]: { $exists: false, }, };
+    }
+    if (value === undefined && operator === '!=') {
+        return { [field]: { $exists: true, }, };
+    }
     if (['=', '!=', '>', '>=', '<', '<=',].includes(operator)) {
         return { [field]: { [toMangoOperator(operator)]: value, }, };
     }
