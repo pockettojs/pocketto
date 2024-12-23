@@ -173,7 +173,8 @@ export class MultiQueryBuilder<T extends BaseModel, K extends string[] = []> {
         const dbs = await this.getDbs();
         let db = dbs.find(db => db.period === currentPeriod);
         if (db === undefined) {
-            db = await MultipleDatabase.createDatabase(currentPeriod);
+            await MultipleDatabase.createDatabase(currentPeriod);
+            db = MultipleDatabase.databases.get(currentPeriod) as MultiDatabaseConfig;
         }
         return QueryBuilder.query(this.model, this.queryBuilder.getRelationships(), db.config.dbName).create(attributes, fallbackCreate);
     }
