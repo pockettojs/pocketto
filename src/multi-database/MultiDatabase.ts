@@ -40,7 +40,7 @@ export class MultipleDatabase {
     static async createDatabase(
         period: string,
         remoteConfig?: PouchDBConfig & { url: string; }
-    ): Promise<MultiDatabaseConfig> {
+    ): Promise<PouchDB.Database & DatabaseCustomConfig | null> {
         const mainDbName = this.dbName;
         const mainDbConfig = DatabaseManager.databases[mainDbName]?.config;
         if (!mainDbConfig) throw new Error(`Database ${mainDbName} not found`);
@@ -66,8 +66,9 @@ export class MultipleDatabase {
             periodDb!.config = periodDbConfig;
         }
 
+        let remote = null;
         if (remoteConfig && remoteConfig?.dbName && periodDb?.config?.dbName) {
-            await DatabaseManager.connect(remoteConfig.url, remoteConfig);
+            remote = await DatabaseManager.connect(remoteConfig.url, remoteConfig) as PouchDB.Database & DatabaseCustomConfig;
             syncDatabases(periodDb.config?.dbName, remoteConfig.dbName);
             if (!remoteConfig.silentConnect) {
                 console.log(`Syncing ${periodDb.config?.dbName} with ${remoteConfig.dbName}`);
@@ -96,7 +97,7 @@ export class MultipleDatabase {
             await db?.put(data);
         }
 
-        return result;
+        return remote;
     }
 
     static async getDatabase(period: string): Promise<MultiDatabaseConfig | undefined> {
