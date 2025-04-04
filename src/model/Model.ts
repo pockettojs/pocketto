@@ -578,7 +578,9 @@ export class BaseModel {
      * @returns Model Query Builder with specific database
      */
     static via<T extends BaseModel>(this: ModelStatic<T>, dbName: string): QueryBuilder<T> {
-        return new QueryBuilder<T>(new this, undefined, dbName);
+        const builder = new QueryBuilder<T>(new this, undefined, dbName);
+        builder.setIsMultiDatabase(false);
+        return builder;
     }
 
     /**
