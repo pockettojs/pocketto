@@ -4,15 +4,24 @@ import { isRealTime, setRealtime } from 'src/real-time/RealTimeModel';
 let PouchDB: any;
 let dbEnvironment: 'browser' | 'runtime' | 'react-native';
 
-export function setEnvironment(environment: 'browser' | 'runtime' | 'react-native') {
-    const PouchDBFind = require('pouchdb-find');
+export async function setEnvironment(environment: 'browser' | 'runtime' | 'react-native') {
     if (environment == 'browser') {
-        PouchDB = require('pouchdb-browser').default || require('pouchdb-browser');
-        PouchDB.plugin(PouchDBFind.default || PouchDBFind);
+        return new Promise((resolve) => {
+            import('pouchdb-find').then((PouchDBFindModule) => {
+                const PouchDBFind = PouchDBFindModule ? PouchDBFindModule.default : PouchDBFindModule;
+                import('pouchdb-browser').then((PouchDBBrowserModule) => {
+                    PouchDB = PouchDBBrowserModule.default ? PouchDBBrowserModule.default : PouchDBBrowserModule;
+                    PouchDB.plugin(PouchDBFind);
+                    resolve(PouchDB);
+                });
+            });
+        });
     } else if (environment == 'runtime') {
+        const PouchDBFind = require('pouchdb-find');
         PouchDB = require('pouchdb');
         PouchDB.plugin(PouchDBFind);
     } else if (environment == 'react-native') {
+        const PouchDBFind = require('pouchdb-find');
         PouchDB = require('pouchdb');
         PouchDB.plugin(PouchDBFind);
         // require('react-native-get-random-values');
@@ -81,8 +90,18 @@ export class DatabaseManager {
     public static databases: { [dbName: string]: PouchDB.Database & DatabaseCustomConfig | null } = {};
 
     public static async connect(url: string, config: PouchDBConfig): Promise<PouchDB.Database & DatabaseCustomConfig | null> {
-        if (!PouchDB) {
-            setEnvironment('runtime');
+        if (!dbEnvironment) {
+            const isBrowser = typeof window !== 'undefined' && typeof window.document !== 'undefined';
+            const isRuntime = typeof process !== 'undefined' && process.versions && process.versions.node;
+            if (isBrowser) {
+                await setEnvironment('browser');
+            }
+            else if (isRuntime) {
+                await setEnvironment('runtime');
+            }
+            else {
+                await setEnvironment('react-native');
+            }
         }
         if (config.adapter == 'memory') {
             const PouchDBAdapterMemory = require('pouchdb-adapter-memory');

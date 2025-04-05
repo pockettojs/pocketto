@@ -13,7 +13,7 @@
         "outDir": "./dist/browser",
         "sourceMap": true,
         "target": "ES2015",
-        "module": "ES2015",
+        "module": "ESNext",
         "moduleResolution": "node",
         "resolveJsonModule": true,
         "experimentalDecorators": true,
