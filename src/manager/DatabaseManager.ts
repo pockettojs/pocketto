@@ -152,15 +152,17 @@ export class DatabaseManager {
                 this.databases[config.dbName] = pouchDb;
 
                 // patch for fixing get() method cannot run in v0.76.5 react native
-                pouchDb.get = async function (id: string, options?: PouchDB.Core.GetOptions) {
-                    return pouchDb.allDocs({ include_docs: true, startkey: id, endkey: id + '\uffff', limit: 1, ...options, }).then((result: any) => {
-                        if (result.rows.length) {
-                            return result.rows[0].doc;
-                        } else {
-                            throw new Error('missing');
-                        }
-                    });
-                } as any;
+                if (dbEnvironment == 'react-native') {
+                    pouchDb.get = async function (id: string, options?: PouchDB.Core.GetOptions) {
+                        return pouchDb.allDocs({ include_docs: true, startkey: id, endkey: id + '\uffff', limit: 1, ...options, }).then((result: any) => {
+                            if (result.rows.length) {
+                                return result.rows[0].doc;
+                            } else {
+                                throw new Error('missing');
+                            }
+                        });
+                    } as any;
+                }
 
                 resolve(pouchDb);
             } catch (error) {
