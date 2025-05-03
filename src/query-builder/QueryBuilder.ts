@@ -465,7 +465,9 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
             model._meta._period = model._tempPeriod;
             delete model._tempPeriod;
         }
-        model._meta._to_utc = this.utcOffset || 0;
+        if (this.utcOffset !== undefined) {
+            model._meta._to_utc = this.utcOffset;
+        }
         model = await this.bindRelationship(model);
         model.setForeignFieldsToModelId();
         return model;
