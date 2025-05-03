@@ -484,7 +484,7 @@ export class BaseModel {
                 await this.getClass().beforeUpdate(this);
             }
             if (this.sMode === ShardingMode.TimeSeries) {
-                updatedResult = await MultiQueryBuilder.query(new (this.getClass())).update(newAttributes, this._meta._period);
+                updatedResult = await MultiQueryBuilder.query(new (this.getClass())).update(newAttributes, moment().format('YYYY-MM'));
             } else {
                 updatedResult = await this.getClass().repo().update(newAttributes);
             }
