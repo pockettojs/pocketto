@@ -596,7 +596,10 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
 
     async get(): Promise<T[]> {
         this.queries.selector.$and.push({
-            _id: { $regex: `^${this.model.cName}`, },
+            _id: {
+                $gte: `${this.model.cName}.`,
+                $lt: `${this.model.cName}.\ufffd`,
+            },
         });
 
         // TODO: Due to PouchDB cannot accept this param, comment it first. Later need to fix
