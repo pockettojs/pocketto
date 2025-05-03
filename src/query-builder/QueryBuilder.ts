@@ -158,6 +158,18 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         return this.db;
     }
 
+    /**
+     * Query for specific database
+     * @param dbName database name that return from DatabaseManager.get()
+     * @returns QueryBuilder
+     */
+    via(dbName: string) {
+        this.dbName = dbName;
+        this.db = DatabaseManager.get(this.dbName) as PouchDB.Database<T> & DatabaseCustomConfig;
+        if (!this.db) throw new Error(`Database ${this.dbName} not found`);
+        return this;
+    }
+
     setRelationshipType(type: RelationshipType, localKey: string, foreignKey: string) {
         this.relationshipType = type;
         this.localKey = localKey;
