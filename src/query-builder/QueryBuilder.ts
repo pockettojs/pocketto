@@ -11,6 +11,7 @@ import { MultiQueryBuilder } from 'src/multi-database/MultiQueryBuilder';
 import { convertIdFieldsToDocIds, getForeignIdFields } from 'src/relationships/RelationshipDecorator';
 import { ApiRepo } from 'src/repo/ApiRepo';
 import { ShardingMode } from 'src/multi-database/MultiDatabaseConfig';
+import { Utc } from 'src/helpers/Utc';
 
 const operators = ['=', '>', '>=', '<', '<=', '!=', 'in', 'not in', 'between', 'like',] as const;
 export type Operator = typeof operators[number];
@@ -120,6 +121,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
     protected db: PouchDB.Database;
     protected apiInfo?: APIResourceInfo;
     public api?: ApiRepo<T>;
+    protected utcOffset?: number;
 
     protected relationshipType?: RelationshipType;
     protected localKey?: string;
@@ -167,6 +169,16 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         this.dbName = dbName;
         this.db = DatabaseManager.get(this.dbName) as PouchDB.Database<T> & DatabaseCustomConfig;
         if (!this.db) throw new Error(`Database ${this.dbName} not found`);
+        return this;
+    }
+
+    /**
+     * Set UTC time when cast
+     * @param toUtc UTC time
+     * @returns QueryBuilder
+     */
+    utc(toUtc: number) {
+        this.utcOffset = toUtc;
         return this;
     }
 
@@ -453,6 +465,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
             model._meta._period = model._tempPeriod;
             delete model._tempPeriod;
         }
+        model._meta._to_utc = this.utcOffset || 0;
         model = await this.bindRelationship(model);
         model.setForeignFieldsToModelId();
         return model;
@@ -719,6 +732,10 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         }
         const attr = { ...attributes, ...newAttr, } as NewModelType<T> & { _id?: string, };
         attr._id = attr.id as string;
+        if (this.model.needTimestamp) {
+            attr.createdAt = new Utc(this.utcOffset || 0).convertToUtc();
+            attr.updatedAt = new Utc(this.utcOffset || 0).convertToUtc();
+        }
         delete attr.id;
         const result = await this.db.post(attr);
         if (this.apiInfo && this.apiInfo.apiAutoCreate && !fallbackCreate) {
@@ -741,6 +758,9 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         if (!doc._meta._rev) throw new Error('Document revision not found');
         attr._rev = doc._meta._rev;
         delete attr.id;
+        if (this.model.needTimestamp) {
+            attr.updatedAt = new Utc(this.utcOffset || 0).convertToUtc();
+        }
         attr = convertIdFieldsToDocIds(attr, this.model);
         for (const key in newAttr) {
             if (newAttr[key as keyof NewModelType<T>] === undefined || newAttr[key as keyof NewModelType<T>] === null) {

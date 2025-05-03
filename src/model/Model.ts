@@ -19,6 +19,7 @@ import { getModelClass } from './ModelDecorator';
 import { MultiQueryBuilder } from 'src/multi-database/MultiQueryBuilder';
 import { MultipleDatabase } from 'src/multi-database/MultiDatabase';
 import { getMainDatabaseName, ShardingMode } from 'src/multi-database/MultiDatabaseConfig';
+import { Utc } from 'src/helpers/Utc';
 
 export function setDefaultDbName(dbName: string): string {
     BaseModel.dbName = dbName;
@@ -105,6 +106,7 @@ export class BaseModel {
         _before_dirty: { [key: string]: any };
         _update_callbacks?: Function[];
         _rev: string;
+        _to_utc?: number;
 
         _period?: string;
     };
@@ -112,6 +114,29 @@ export class BaseModel {
     public createdAt?: string;
     public updatedAt?: string;
     public deletedAt?: string;
+
+    // start of utc
+    /**
+     * Create a new query builder with UTC
+     * @param this
+     * @param utc UTC offset eg +8
+     * @returns 
+     */
+    static utc<T extends BaseModel>(this: ModelStatic<T>, utc: number): QueryBuilder<T> {
+        const model = new this();
+        const query = new QueryBuilder<T>(model, undefined, model.dName);
+        return query.utc(utc);
+    }
+    /**
+     * Set the UTC offset for the model
+     * @param utc UTC offset eg +8
+     * @returns 
+     */
+    utc(utc: number): this {
+        this._meta._to_utc = utc;
+        return this;
+    }
+    // end of utc
 
     // start of object construction
     public fill(attributes: Partial<ModelType<this>>): void {
@@ -285,8 +310,8 @@ export class BaseModel {
     static async create<T extends BaseModel>(this: ModelStatic<T>, attributes: NewModelType<T>, databasePeriod?: string): Promise<T> {
         const model = new this() as T;
         if (model.needTimestamp) {
-            attributes.createdAt = moment().format();
-            attributes.updatedAt = moment().format();
+            attributes.createdAt = new Utc(model._meta?._to_utc || 0).convertToUtc();
+            attributes.updatedAt = new Utc(model._meta?._to_utc || 0).convertToUtc();
         }
         model.fill(attributes as ModelType<T>);
         const hasDocumentInDb = await model.getClass().find(attributes.id);
@@ -304,7 +329,7 @@ export class BaseModel {
         const guarded = this.getClass().readonlyFields;
         attributes.id = this.id;
         delete attributes.relationships;
-        if (this.needTimestamp) attributes.updatedAt = moment().format();
+        if (this.needTimestamp) attributes.updatedAt = new Utc(this._meta?._to_utc || 0).convertToUtc();
         let updateAttributes: Partial<ModelType<this>> = {};
         updateAttributes = {} as Partial<ModelType<this>>;
         for (const key in attributes) {
@@ -436,7 +461,7 @@ export class BaseModel {
             newAttributes[field] = this[field];
         }
         newAttributes = convertIdFieldsToDocIds(newAttributes, this);
-        const now = moment().format();
+        const now = new Utc(this._meta?._to_utc || 0).convertToUtc();
         let updatedResult;
 
         let hasDocumentInDb;
@@ -516,7 +541,7 @@ export class BaseModel {
             await this.getClass().beforeDelete(this);
         }
         if (this.getClass().softDelete && !forceDelete) {
-            this.deletedAt = moment().format();
+            this.deletedAt = new Utc(this._meta?._to_utc || 0).convertToUtc();
             await this.save();
         } else {
             if (this.sMode === ShardingMode.TimeSeries) {
