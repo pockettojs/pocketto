@@ -12,14 +12,14 @@ export class Utc {
         return utcPattern.test(time);
     }
 
-    convertToUtc(): string {
+    now(): string {
         const moment = require('moment');
         const now = moment.utc().format('YYYY-MM-DDTHH:mm:ss');
         const utcDate = moment(now).utcOffset(this.toUtc);
         return utcDate.format('YYYY-MM-DDTHH:mm:ssZ');
     }
 
-    covertTimeToUtc(time: string): string {
+    from(time: string): string {
         const utcDate = moment(time).utcOffset(this.toUtc);
         return utcDate.format('YYYY-MM-DDTHH:mm:ssZ');
     }

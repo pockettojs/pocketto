@@ -17,6 +17,7 @@ export * from 'src/real-time/DatabaseSync';
 export * from 'src/relationships/RelationshipDecorator';
 export * from 'src/model/ModelDecorator';
 export * from 'src/helpers/Persistor';
+export * from 'src/helpers/Utc';
 
 export const p = {
     setIdMethod: setIdMethod,

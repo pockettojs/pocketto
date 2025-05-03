@@ -310,8 +310,8 @@ export class BaseModel {
     static async create<T extends BaseModel>(this: ModelStatic<T>, attributes: NewModelType<T>, databasePeriod?: string): Promise<T> {
         const model = new this() as T;
         if (model.needTimestamp) {
-            attributes.createdAt = new Utc(model._meta?._to_utc || 0).convertToUtc();
-            attributes.updatedAt = new Utc(model._meta?._to_utc || 0).convertToUtc();
+            attributes.createdAt = new Utc(model._meta?._to_utc || 0).now();
+            attributes.updatedAt = new Utc(model._meta?._to_utc || 0).now();
         }
         model.fill(attributes as ModelType<T>);
         const hasDocumentInDb = await model.getClass().find(attributes.id);
@@ -329,7 +329,7 @@ export class BaseModel {
         const guarded = this.getClass().readonlyFields;
         attributes.id = this.id;
         delete attributes.relationships;
-        if (this.needTimestamp) attributes.updatedAt = new Utc(this._meta?._to_utc || 0).convertToUtc();
+        if (this.needTimestamp) attributes.updatedAt = new Utc(this._meta?._to_utc || 0).now();
         let updateAttributes: Partial<ModelType<this>> = {};
         updateAttributes = {} as Partial<ModelType<this>>;
         for (const key in attributes) {
@@ -461,7 +461,7 @@ export class BaseModel {
             newAttributes[field] = this[field];
         }
         newAttributes = convertIdFieldsToDocIds(newAttributes, this);
-        const now = new Utc(this._meta?._to_utc || 0).convertToUtc();
+        const now = new Utc(this._meta?._to_utc || 0).now();
         let updatedResult;
 
         let hasDocumentInDb;
@@ -541,7 +541,7 @@ export class BaseModel {
             await this.getClass().beforeDelete(this);
         }
         if (this.getClass().softDelete && !forceDelete) {
-            this.deletedAt = new Utc(this._meta?._to_utc || 0).convertToUtc();
+            this.deletedAt = new Utc(this._meta?._to_utc || 0).now();
             await this.save();
         } else {
             if (this.sMode === ShardingMode.TimeSeries) {

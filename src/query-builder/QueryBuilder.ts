@@ -735,8 +735,8 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         const attr = { ...attributes, ...newAttr, } as NewModelType<T> & { _id?: string, };
         attr._id = attr.id as string;
         if (this.model.needTimestamp) {
-            attr.createdAt = new Utc(this.utcOffset || 0).convertToUtc();
-            attr.updatedAt = new Utc(this.utcOffset || 0).convertToUtc();
+            attr.createdAt = new Utc(this.utcOffset || 0).now();
+            attr.updatedAt = new Utc(this.utcOffset || 0).now();
         }
         delete attr.id;
         const result = await this.db.post(attr);
@@ -761,7 +761,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         attr._rev = doc._meta._rev;
         delete attr.id;
         if (this.model.needTimestamp) {
-            attr.updatedAt = new Utc(this.utcOffset || 0).convertToUtc();
+            attr.updatedAt = new Utc(this.utcOffset || 0).now();
         }
         attr = convertIdFieldsToDocIds(attr, this.model);
         for (const key in newAttr) {
