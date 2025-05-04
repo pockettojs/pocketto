@@ -1,5 +1,5 @@
 import { onDocChange } from 'src/real-time/RealTimeModel';
-import { setEnvironment } from '.';
+import { setEnvironment, enableCacheDatabase } from '.';
 import { setRealtime } from '.';
 import { getMainDatabaseName, setMainDatabaseName, bootDatabases } from './multi-database/MultiDatabaseConfig';
 import { setIdMethod } from './id/Id';
@@ -27,4 +27,5 @@ export const p = {
     setMainDatabaseName: setMainDatabaseName,
     getMainDatabaseName: getMainDatabaseName,
     bootDatabases: bootDatabases,
+    enableCacheDatabase: enableCacheDatabase,
 };

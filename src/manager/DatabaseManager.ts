@@ -4,6 +4,10 @@ import { isRealTime, setRealtime } from 'src/real-time/RealTimeModel';
 let PouchDB: any;
 let dbEnvironment: 'browser' | 'runtime' | 'react-native';
 
+export function enableCacheDatabase(enable: boolean) {
+    DatabaseManager.enableCache = enable;
+}
+
 export async function setEnvironment(environment: 'browser' | 'runtime' | 'react-native') {
     if (environment == 'browser') {
         return new Promise((resolve) => {
@@ -88,6 +92,7 @@ export type DatabaseCustomConfig = {
 
 export class DatabaseManager {
     public static databases: { [dbName: string]: PouchDB.Database & DatabaseCustomConfig | null } = {};
+    public static enableCache = true;
 
     public static async connect(url: string, config: PouchDBConfig): Promise<PouchDB.Database & DatabaseCustomConfig | null> {
         if (!dbEnvironment) {
@@ -149,7 +154,7 @@ export class DatabaseManager {
                     config.dbName = DEFAULT_DB_NAME;
                 }
                 (pouchDb as PouchDB.Database & DatabaseCustomConfig).config = config;
-                this.databases[config.dbName] = pouchDb;
+                if (this.enableCache) this.databases[config.dbName] = pouchDb;
 
                 // patch for fixing get() method cannot run in v0.76.5 react native
                 if (dbEnvironment == 'react-native') {
@@ -176,6 +181,9 @@ export class DatabaseManager {
     }
 
     public static get(dbName?: string): PouchDB.Database & DatabaseCustomConfig | null {
+        if (!this.enableCache) {
+            return null;
+        }
         if (!dbName) {
             // find the only database
             if (Object.keys(this.databases).length === 1) {
@@ -196,6 +204,9 @@ export class DatabaseManager {
     }
 
     public static close(dbName?: string) {
+        if (!this.enableCache) {
+            return null;
+        }
         if (!dbName) {
             // find the only database
             if (Object.keys(this.databases).length === 1) {
