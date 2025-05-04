@@ -118,7 +118,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
     protected model: T;
     protected dbName?: string;
     protected relationships?: ValidDotNotationArray<T, K>;
-    protected db: PouchDB.Database;
+    protected db: PouchDB.Database<T> & DatabaseCustomConfig;
     protected apiInfo?: APIResourceInfo;
     public api?: ApiRepo<T>;
     protected utcOffset?: number;
@@ -156,7 +156,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         return builder.where(field as ModelKey<T>, operator, value);
     }
 
-    raw(): PouchDB.Database {
+    raw(): PouchDB.Database<T> & DatabaseCustomConfig {
         return this.db;
     }
 
@@ -169,6 +169,17 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         this.dbName = dbName;
         this.db = DatabaseManager.get(this.dbName) as PouchDB.Database<T> & DatabaseCustomConfig;
         if (!this.db) throw new Error(`Database ${this.dbName} not found`);
+        return this;
+    }
+
+    /**
+     * Directly assign database for this query builder
+     * @param database PouchDB.Database
+     * @returns QueryBuilder
+     */
+    use(database: PouchDB.Database<T> & DatabaseCustomConfig) {
+        this.db = database;
+        this.dbName = database.name;
         return this;
     }
 
@@ -648,7 +659,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
             return multiQb.get();
         }
 
-        const db = DatabaseManager.get(this.dbName) as PouchDB.Database<T> & DatabaseCustomConfig;
+        const db = this.db || DatabaseManager.get(this.dbName) as PouchDB.Database<T> & DatabaseCustomConfig;
         if (!db) {
             throw new Error(`Database ${this.dbName} not found`);
         }

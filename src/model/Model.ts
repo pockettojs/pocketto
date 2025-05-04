@@ -14,7 +14,7 @@ import { needToReload } from 'src/real-time/RealTimeModel';
 import { APIMethod } from 'src/repo/ApiRepo';
 import { ValidDotNotationArray } from 'src/definitions/DotNotation';
 import { RelationshipType } from 'src/definitions/RelationshipType';
-import { DatabaseManager, convertIdFieldsToDocIds, convertIdFieldsToModelIds, getRelationships } from '..';
+import { DatabaseCustomConfig, DatabaseManager, convertIdFieldsToDocIds, convertIdFieldsToModelIds, getRelationships } from '..';
 import { getModelClass } from './ModelDecorator';
 import { MultiQueryBuilder } from 'src/multi-database/MultiQueryBuilder';
 import { MultipleDatabase } from 'src/multi-database/MultiDatabase';
@@ -605,6 +605,17 @@ export class BaseModel {
     static via<T extends BaseModel>(this: ModelStatic<T>, dbName: string): QueryBuilder<T> {
         const builder = new QueryBuilder<T>(new this, undefined, dbName);
         builder.setIsMultiDatabase(false);
+        return builder;
+    }
+
+    /** 
+     * Query for specific database by using PouchDB instance
+     * @param database PouchDB instance
+     * @returns Model Query Builder with specific database
+     */
+    static use<T extends BaseModel>(this: ModelStatic<T>, database: PouchDB.Database<T> & DatabaseCustomConfig): QueryBuilder<T> {
+        const builder = new QueryBuilder<T>(new this);
+        builder.use(database);
         return builder;
     }
 
