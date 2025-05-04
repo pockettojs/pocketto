@@ -750,7 +750,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
             attr.updatedAt = new Utc(this.utcOffset || 0).now();
         }
         delete attr.id;
-        const result = await this.db.post(attr);
+        const result = await this.db.post<T>(attr as T);
         if (this.apiInfo && this.apiInfo.apiAutoCreate && !fallbackCreate) {
             await this.api?.create(attributes);
         }
@@ -780,7 +780,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
                 delete attr[key as keyof NewModelType<T>];
             }
         }
-        const result = await this.db.put(attr, {
+        const result = await this.db.put<T>(attr as T, {
             force: false,
         });
         if (this.apiInfo && this.apiInfo.apiAutoUpdate) {
