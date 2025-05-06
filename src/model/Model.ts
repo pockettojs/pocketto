@@ -109,6 +109,7 @@ export class BaseModel {
         _to_utc?: number;
 
         _period?: string;
+        _database?: PouchDB.Database & DatabaseCustomConfig;
     };
     public _tempPeriod?: string;
     public createdAt?: string;
@@ -298,6 +299,7 @@ export class BaseModel {
         const item = await RepoManager.get(new this()).getDoc(primaryKey);
         if (!item) return undefined;
         const model = new this(item) as T;
+        model.use(model._meta._database as PouchDB.Database<T> & DatabaseCustomConfig);
         model.setForeignFieldsToModelId();
         return model;
     }
@@ -355,6 +357,7 @@ export class BaseModel {
                     const newChildren = [];
                     for (const child of children) {
                         const newChild = new (child.getClass() as ModelStatic<BaseModel>)();
+                        if (this._meta && this._meta._database) newChild.use(this._meta._database as PouchDB.Database<this> & DatabaseCustomConfig);
                         const foreignKey = query.getForeignKey() as ModelKey<BaseModel>;
                         child[foreignKey] = this.docId;
                         newChild.fill(child);
@@ -373,6 +376,7 @@ export class BaseModel {
                         child[foreignKey] = this.docId;
                     }
                     const newChild = new (child.getClass() as ModelStatic<BaseModel>)();
+                    if (this._meta && this._meta._database) newChild.use(this._meta._database as PouchDB.Database<this> & DatabaseCustomConfig);
                     newChild.fill(child);
                     await newChild.save();
                     newChild.sanitizeMeta();
@@ -617,6 +621,10 @@ export class BaseModel {
         const builder = new QueryBuilder<T>(new this);
         builder.use(database);
         return builder;
+    }
+    use<T extends BaseModel>(database: PouchDB.Database<T> & DatabaseCustomConfig): this {
+        this._meta._database = database;
+        return this;
     }
 
     /**

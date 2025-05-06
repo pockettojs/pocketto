@@ -479,6 +479,9 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         if (this.utcOffset !== undefined) {
             model._meta._to_utc = this.utcOffset;
         }
+        if (this.db) {
+            model._meta._database = this.db;
+        }
         model = await this.bindRelationship(model);
         model.setForeignFieldsToModelId();
         return model;
