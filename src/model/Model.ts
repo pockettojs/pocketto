@@ -357,7 +357,7 @@ export class BaseModel {
                     const newChildren = [];
                     for (const child of children) {
                         const newChild = new (child.getClass() as ModelStatic<BaseModel>)();
-                        if (this._meta && this._meta._database) newChild.use(this._meta._database as PouchDB.Database<this> & DatabaseCustomConfig);
+                        if (!DatabaseManager.enableCache && this._meta && this._meta._database) newChild.use(this._meta._database as PouchDB.Database<this> & DatabaseCustomConfig);
                         const foreignKey = query.getForeignKey() as ModelKey<BaseModel>;
                         child[foreignKey] = this.docId;
                         newChild.fill(child);
@@ -376,7 +376,7 @@ export class BaseModel {
                         child[foreignKey] = this.docId;
                     }
                     const newChild = new (child.getClass() as ModelStatic<BaseModel>)();
-                    if (this._meta && this._meta._database) newChild.use(this._meta._database as PouchDB.Database<this> & DatabaseCustomConfig);
+                    if (!DatabaseManager.enableCache && this._meta && this._meta._database) newChild.use(this._meta._database as PouchDB.Database<this> & DatabaseCustomConfig);
                     newChild.fill(child);
                     await newChild.save();
                     newChild.sanitizeMeta();
@@ -493,7 +493,7 @@ export class BaseModel {
                 updatedResult = await MultiQueryBuilder.query(new (this.getClass())).create(newAttributes as NewModelType<this>, currentPeriod);
                 this._meta._period = currentPeriod;
             } else {
-                updatedResult = await this.getClass().repo().use(this._meta._database as any).create(newAttributes);
+                updatedResult = await this.getClass().repo().use(!DatabaseManager.enableCache ? this._meta._database as any : undefined).create(newAttributes);
             }
             this.fill({ id: updatedResult.id, } as Partial<ModelType<this>>);
             if (this.getClass().afterCreate) {
@@ -515,7 +515,7 @@ export class BaseModel {
             if (this.sMode === ShardingMode.TimeSeries) {
                 updatedResult = await MultiQueryBuilder.query(new (this.getClass())).update(newAttributes, moment().format('YYYY-MM'));
             } else {
-                updatedResult = await this.getClass().repo().use(this._meta._database as any).update(newAttributes);
+                updatedResult = await this.getClass().repo().use(!DatabaseManager.enableCache ? this._meta._database as any : undefined).update(newAttributes);
             }
             if (this.getClass().afterCreate) {
                 await this.getClass().afterCreate(this);

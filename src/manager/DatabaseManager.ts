@@ -1,4 +1,5 @@
 import { setEncryptionPassword, transformer } from 'src/encryption/encryption';
+import { Utc } from 'src/helpers/Utc';
 import { isRealTime, setRealtime } from 'src/real-time/RealTimeModel';
 
 let PouchDB: any;
@@ -91,7 +92,10 @@ export type DatabaseCustomConfig = {
 };
 
 export class DatabaseManager {
-    public static databases: { [dbName: string]: PouchDB.Database & DatabaseCustomConfig | null } = {};
+    public static databases: Record<string, {
+        db: PouchDB.Database & DatabaseCustomConfig;
+        lastAccess: string;
+    }> = {};
     public static enableCache = true;
 
     public static async connect(url: string, config: PouchDBConfig): Promise<PouchDB.Database & DatabaseCustomConfig | null> {
@@ -154,7 +158,16 @@ export class DatabaseManager {
                     config.dbName = DEFAULT_DB_NAME;
                 }
                 (pouchDb as PouchDB.Database & DatabaseCustomConfig).config = config;
-                if (this.enableCache) this.databases[config.dbName] = pouchDb;
+                if (this.enableCache) {
+                    if (this.databases[config.dbName]) {
+                        this.databases[config.dbName]!.db.close();
+                        delete this.databases[config.dbName];
+                    }
+                    this.databases[config.dbName] = {
+                        db: pouchDb,
+                        lastAccess: new Utc().now(),
+                    };
+                }
 
                 // patch for fixing get() method cannot run in v0.76.5 react native
                 if (dbEnvironment == 'react-native') {
@@ -174,7 +187,7 @@ export class DatabaseManager {
                 console.error(`- Database "${config.dbName}" having error while connecting, please check below`);
                 console.error((error as any).message);
                 console.error((error as any).stack);
-                this.databases[config.dbName as string] = null;
+                delete this.databases[config.dbName as string];
                 resolve(null);
             }
         });
@@ -187,7 +200,8 @@ export class DatabaseManager {
         if (!dbName) {
             // find the only database
             if (Object.keys(this.databases).length === 1) {
-                return this.databases[Object.keys(this.databases)[0]];
+                this.databases[Object.keys(this.databases)[0]].lastAccess = new Utc().now();
+                return this.databases[Object.keys(this.databases)[0]].db;
             }
             if (Object.keys(this.databases).length === 0) {
                 throw new Error('No database connected.');
@@ -196,7 +210,10 @@ export class DatabaseManager {
                 'There is more than one database connected. Please specify the database name to get.'
             );
         }
-        const db = this.databases[dbName];
+        const db = this.databases[dbName].db;
+        if (db) {
+            this.databases[dbName].lastAccess = new Utc().now();
+        }
         if (!db) {
             throw new Error(`Database "${dbName}" not found.`);
         }
@@ -219,9 +236,13 @@ export class DatabaseManager {
                 );
             }
         }
-        const db = this.databases[dbName];
+        const db = this.databases[dbName].db;
         if (db) {
-            db.close();
+            db.close().catch((error: any) => {
+                console.error(`- Database "${dbName}" having error while closing, please check below`);
+                console.error(error.message);
+                console.error(error.stack);
+            });
             delete this.databases[dbName];
         }
     }
