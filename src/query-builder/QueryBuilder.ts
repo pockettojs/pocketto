@@ -757,6 +757,48 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         return result;
     }
 
+    async createMany(models: NewModelType<T>[]): Promise<(PouchDB.Core.Response | PouchDB.Core.Error)[]> {
+        const docs = await Promise.all(models.map(async (attributes) => {
+            if (!attributes.id) {
+                attributes.id = await getNewId(this.model.getClass());
+            }
+            if (!attributes.id.includes(this.model.cName)) {
+                attributes.id = `${this.model.cName}.${attributes.id}`;
+            }
+
+            const newAttr = {} as NewModelType<T>;
+            for (const key in attributes) {
+                if (typeof attributes[key as keyof NewModelType<T>] === 'function') {
+                    newAttr[key as keyof NewModelType<T>] = (attributes[key as keyof NewModelType<T>] as Function).toString() as any;
+                }
+            }
+
+            const attr = {
+                ...attributes,
+                ...newAttr,
+                _id: attributes.id as string,
+            } as NewModelType<T> & { _id?: string };
+
+            if (this.model.needTimestamp) {
+                const utc = new Utc(this.utcOffset || 0);
+                attr.createdAt = utc.now();
+                attr.updatedAt = utc.now();
+            }
+
+            delete attr.id;
+            return attr as T;
+        }));
+
+        const result = await this.db.bulkDocs<T>(docs, {});
+
+        if (this.apiInfo && this.apiInfo.apiAutoCreate) {
+            await Promise.all(models.map(model => this.api?.create(model)));
+        }
+
+        return result;
+    }
+
+
     async update(attributes: Partial<ModelType<T>>): Promise<PouchDB.Core.Response> {
         const doc = await this.find(attributes.id as string);
         if (!doc) return { ok: false, } as PouchDB.Core.Response;
