@@ -142,7 +142,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
         this.queries = { selector: { $and: [], }, };
         this.isOne = isOne;
         this.db = DatabaseManager.get(this.dbName) as PouchDB.Database<T> & DatabaseCustomConfig;
-        if (!this.db) throw new Error(`Database ${this.dbName} not found`);
+        if (!this.db && DatabaseManager.enableCache) throw new Error(`Database ${this.dbName} not found`);
         this.apiInfo = apiInfo;
         if (this.apiInfo) this.api = new ApiRepo<T>(this.apiInfo);
     }
@@ -177,7 +177,10 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
      * @param database PouchDB.Database
      * @returns QueryBuilder
      */
-    use(database: PouchDB.Database<T> & DatabaseCustomConfig) {
+    use(database?: PouchDB.Database<T> & DatabaseCustomConfig) {
+        if (!database) {
+            return this;
+        }
         this.db = database;
         this.dbName = database.name;
         return this;
