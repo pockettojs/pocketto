@@ -3,8 +3,6 @@ import { APIResourceInfo, ApiHostManager } from './ApiHostManager';
 import { QueryBuilder } from '..';
 
 export class RepoManager {
-    private static repos: { [collectionName: string]: QueryBuilder<any> } = {};
-
     static get<T extends BaseModel>(model: T): QueryBuilder<T> {
         const dbName = model.dName;
         const apiName = model.aName;
