@@ -25,8 +25,8 @@ export function setRealtime(realTime: boolean) {
     if (isRealTime) {
         Object.values(DatabaseManager.databases).forEach((db) => {
             if (!db) return;
-            if (dbChangeListenerMap[db.name]) return;
-            dbChangeListenerMap[db.name] = db.changes({
+            if (dbChangeListenerMap[db.db.name]) return;
+            dbChangeListenerMap[db.db.name] = db.db.changes({
                 since: 'now',
                 include_docs: true,
                 live: true,
@@ -34,7 +34,7 @@ export function setRealtime(realTime: boolean) {
         });
     } else {
         Object.values(DatabaseManager.databases).forEach((db) => {
-            db?.removeAllListeners('change');
+            db?.db.removeAllListeners('change');
         });
     }
 }

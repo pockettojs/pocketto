@@ -42,7 +42,7 @@ export class MultipleDatabase {
         remoteConfig?: PouchDBConfig & { url: string; }
     ): Promise<PouchDB.Database & DatabaseCustomConfig | null> {
         const mainDbName = this.dbName;
-        const mainDbConfig = DatabaseManager.databases[mainDbName]?.config;
+        const mainDbConfig = DatabaseManager.databases[mainDbName]?.db.config;
         if (!mainDbConfig) throw new Error(`Database ${mainDbName} not found`);
 
         const periodDbName = `${mainDbName}-${period}`;
