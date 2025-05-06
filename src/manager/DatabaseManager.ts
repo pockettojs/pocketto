@@ -159,10 +159,6 @@ export class DatabaseManager {
                 }
                 (pouchDb as PouchDB.Database & DatabaseCustomConfig).config = config;
                 if (this.enableCache) {
-                    if (this.databases[config.dbName]) {
-                        this.databases[config.dbName]!.db.close();
-                        delete this.databases[config.dbName];
-                    }
                     this.databases[config.dbName] = {
                         db: pouchDb,
                         lastAccess: new Utc().now(),
