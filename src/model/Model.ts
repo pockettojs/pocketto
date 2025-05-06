@@ -751,7 +751,13 @@ export class BaseModel {
             if (field === 'needTimestamp') continue;
             if (field === 'cName') continue;
             if (this.relationships && Object.keys(this.relationships).includes(field)) continue;
-            json[field as keyof this] = this[field];
+            if (this[field] instanceof BaseModel) {
+                json[field as keyof this] = (this[field] as BaseModel).toJson() as ModelValue<this, typeof field>;
+            } else if (Array.isArray(this[field]) && (this[field] as unknown as BaseModel[])[0] instanceof BaseModel) {
+                json[field as keyof this] = (this[field] as unknown as BaseModel[]).map(m => m.toJson()) as ModelValue<this, typeof field>;
+            } else {
+                json[field as keyof this] = this[field];
+            }
         }
         return json;
     }
