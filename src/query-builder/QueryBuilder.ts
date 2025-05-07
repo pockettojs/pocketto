@@ -182,7 +182,7 @@ export class QueryBuilder<T extends BaseModel, K extends string[] = []> {
             return this;
         }
         this.db = database;
-        this.dbName = database.name;
+        this.dbName = database.config.dbName;
         return this;
     }
 

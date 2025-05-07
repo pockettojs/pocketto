@@ -206,14 +206,14 @@ export class DatabaseManager {
                 'There is more than one database connected. Please specify the database name to get.'
             );
         }
-        const db = this.databases[dbName].db;
+        const db = this.databases[dbName];
         if (db) {
             this.databases[dbName].lastAccess = new Utc().now();
         }
         if (!db) {
             throw new Error(`Database "${dbName}" not found.`);
         }
-        return db;
+        return db.db;
     }
 
     public static close(dbName?: string) {

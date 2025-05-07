@@ -473,7 +473,7 @@ export class BaseModel {
             if (this.sMode === ShardingMode.TimeSeries) {
                 hasDocumentInDb = await MultiQueryBuilder.query(new (this.getClass())).find(this.id);
             } else {
-                hasDocumentInDb = await this.getClass().query().find(this.id);
+                hasDocumentInDb = await this.getClass().query().use(!DatabaseManager.enableCache ? this._meta._database as any : undefined).find(this.id);
             }
         }
         // add static beforeSave function
@@ -518,6 +518,9 @@ export class BaseModel {
             if (this.sMode === ShardingMode.TimeSeries) {
                 updatedResult = await MultiQueryBuilder.query(new (this.getClass())).update(newAttributes, moment().format('YYYY-MM'));
             } else {
+                console.log('newAttributes: ', newAttributes);
+                console.log('!DatabaseManager.enableCache ? this._meta._database as any : undefined: ', !DatabaseManager.enableCache ? this._meta._database as any : undefined);
+                console.log('this._meta._to_utc || 0: ', this._meta._to_utc || 0);
                 updatedResult = await this.getClass().repo()
                     .use(!DatabaseManager.enableCache ? this._meta._database as any : undefined)
                     .utc(this._meta._to_utc || 0)
