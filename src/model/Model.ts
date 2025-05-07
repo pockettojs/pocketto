@@ -741,20 +741,24 @@ export class BaseModel {
 
     /**
      * Convert model to a plain object
+     * @param withRev Return _rev field for javascript object to detect changes
      * @returns javascript object
      */
-    public toJson(): Partial<ModelType<this>> {
-        const json: Partial<this> = {};
+    public toJson(withRev: boolean = false): Partial<ModelType<this>> {
+        const json: Partial<this> & { _rev?: string } = {};
         for (const field in this) {
+            if (withRev) {
+                json['_rev'] = this._meta._rev;
+            }
             if (field === '_meta') continue;
             if (field === 'relationships') continue;
             if (field === 'needTimestamp') continue;
             if (field === 'cName') continue;
             if (this.relationships && Object.keys(this.relationships).includes(field)) continue;
             if (this[field] instanceof BaseModel) {
-                json[field as keyof this] = (this[field] as BaseModel).toJson() as ModelValue<this, typeof field>;
+                json[field as keyof this] = (this[field] as BaseModel).toJson(withRev) as ModelValue<this, typeof field>;
             } else if (Array.isArray(this[field]) && (this[field] as unknown as BaseModel[])[0] instanceof BaseModel) {
-                json[field as keyof this] = (this[field] as unknown as BaseModel[]).map(m => m.toJson()) as ModelValue<this, typeof field>;
+                json[field as keyof this] = (this[field] as unknown as BaseModel[]).map(m => m.toJson(withRev)) as ModelValue<this, typeof field>;
             } else {
                 json[field as keyof this] = this[field];
             }
