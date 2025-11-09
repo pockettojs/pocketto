@@ -241,7 +241,7 @@ export class BaseModel {
 
     // start of CRUD operation
     /**
-     * @deprecated retuen query builder of the model
+     * @deprecated return query builder of the model
      * @returns A query builder of that model
      */
     static repo<T extends BaseModel>(this: ModelStatic<T>): QueryBuilder<T> {
